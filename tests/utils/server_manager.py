@@ -56,7 +56,12 @@ class ServerManager(object):
                     attempts_left -= 1
                     last_exception = ex
             if not cluster_initialized:
-                raise Exception('Unable to start Vault in background: {0}'.format(last_exception))
+                stdout, stderr = self._processes[0].communicate()
+                raise Exception('Unable to start Vault in background:\n{err}\n{stdout}\n{stderr}'.format(
+                                    err=last_exception,
+                                    stdout=stdout,
+                                    stderr=stderr,
+                                ))
 
     def start_consul(self):
         command = ['consul', 'agent', '-dev']
@@ -77,7 +82,9 @@ class ServerManager(object):
                 assert node_health[0]['Status'] == 'passing', 'Node {name} status != "passing"'.format(name=node_name)
                 return True
             except Exception as error:
-                logging.debug('Unable to connect to consul while waiting for process to start: {err}'.format(err=error))
+                logging.debug('Unable to connect to consul while waiting for process to start:\n{0}\n{1}'.format(
+                    self._processes[0].communicate(),
+                ))
                 time.sleep(0.5)
                 attempts_left -= 1
                 last_exception = error
