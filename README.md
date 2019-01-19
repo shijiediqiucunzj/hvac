@@ -32,6 +32,40 @@ if you would like to be able to return parsed HCL data as a Python dict for meth
 
 ### Initialize the client
 
+#### Using TLS with client-side certificate authentication
+.. doctest::
+
+    >>> client = hvac.Client(
+    ...     url='https://127.0.0.1:8200',
+    ...     token=os.environ['VAULT_TOKEN'],
+    ...     verify=server_cert_path,
+    ... )
+    >>> client.is_authenticated()
+    True
+    
+.. testcode::
+
+   client = hvac.Client(
+        url='https://127.0.0.1:8200',
+        token=os.environ['VAULT_TOKEN'],
+        cert=(client_cert_path, client_key_path),
+        verify=server_cert_path,
+     )
+   print('client authenticated?: %s' % client.is_authenticated())
+
+.. testoutput::
+
+   client authenticated?: True
+
+#### Using Namespace
+.. doctest::
+
+    >>> client = hvac.Client(
+    ...     url='http://localhost:8200', 
+    ...     token=os.environ['VAULT_TOKEN'], 
+    ...     namespace=os.environ['VAULT_NAMESPACE'],
+    ... )
+
 ```python
 import os
 
