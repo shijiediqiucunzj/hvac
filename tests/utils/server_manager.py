@@ -45,6 +45,7 @@ class ServerManager(object):
 
             attempts_left = 20
             last_exception = None
+            # import pdb; pdb.set_trace()
             while attempts_left > 0 and not cluster_initialized:
                 try:
                     self.client.sys.is_initialized()
@@ -56,6 +57,7 @@ class ServerManager(object):
                     attempts_left -= 1
                     last_exception = ex
             if not cluster_initialized:
+                self._processes[0].kill()
                 stdout, stderr = self._processes[0].communicate()
                 raise Exception('Unable to start Vault in background:\n{err}\n{stdout}\n{stderr}'.format(
                                     err=last_exception,
@@ -127,7 +129,7 @@ class ServerManager(object):
                     path=config_path,
                     err=error,
                 ))
-                vault_address = 'https://127.0.0.1:8200'
+                vault_address = 'https://localhost:8200'
                 logger.debug('Using default address: {addr}'.format(addr=vault_address))
             vault_addresses.append(vault_address)
         return vault_addresses

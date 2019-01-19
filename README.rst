@@ -125,11 +125,16 @@ Read and write to secrets engines
    :skipif: test_utils.vault_version_lt('0.10.0')
 
     >>> client = test_utils.create_client()
-    >>> client.secrets.kv.create_or_update_secret('secret/foo', secret=dict(baz='bar'))
+    >>> create_resp = client.secrets.kv.create_or_update_secret('secret/foo', secret=dict(baz='bar'))
+    >>> print('Created secret version "{ver}" at path "secret/foo"!'.format(
+    ...     ver=create_resp['data']['version'],
+    ... ))
+    Created secret version "1" at path "secret/foo"!
     >>> read_response = client.secrets.kv.read_secret_version('secret/foo')
-    >>> read_response['data']['baz']
+    >>> read_response['data']['data']['baz']
     'bar'
     >>> client.secrets.kv.delete_metadata_and_all_versions('secret/foo')
+    <Response [204]>
 
 
 

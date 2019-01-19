@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 
 def load_long_description():
-    with open("README.md", "r") as fh:
+    with open("README.rst", "r") as fh:
         long_description = fh.read()
     return long_description
 
@@ -13,7 +13,7 @@ setup(
     version='0.7.2',
     description='HashiCorp Vault API client',
     long_description=load_long_description(),
-    long_description_content_type="text/markdown",
+    # long_description_content_type="text/markdown",
     author='Ian Unruh <ianunruh@gmail.com>, Jeffrey Hogan <jeff.hogan1@gmail.com>',
     author_email='admin@python-hvac.org',
     url='https://github.com/hvac/hvac',
