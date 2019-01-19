@@ -1,4 +1,3 @@
-
 hvac
 ====
 
@@ -108,6 +107,9 @@ Using plaintext / HTTP (not recommended for anything other than development work
 Read and write to secrets engines
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+KV Secrets Engine - Version 2
+"""""""""""""""""""""""""""""
+
 .. testsetup:: kvv2
    :skipif: test_utils.vault_version_lt('0.10.0')
 
@@ -124,15 +126,27 @@ Read and write to secrets engines
 .. doctest:: kvv2
    :skipif: test_utils.vault_version_lt('0.10.0')
 
+    >>> # Retrieve an authenticated hvac.Client() instnace
     >>> client = test_utils.create_client()
-    >>> create_resp = client.secrets.kv.create_or_update_secret('secret/foo', secret=dict(baz='bar'))
+    >>>
+    >>> # Write a k/v pair under path: secret/foo
+    >>> create_resp = client.secrets.kv.create_or_update_secret(
+    ...     path='secret/foo',
+    ...     secret=dict(baz='bar'),
+    ... )
     >>> print('Created secret version "{ver}" at path "secret/foo"!'.format(
     ...     ver=create_resp['data']['version'],
     ... ))
     Created secret version "1" at path "secret/foo"!
-    >>> read_response = client.secrets.kv.read_secret_version('secret/foo')
-    >>> read_response['data']['data']['baz']
-    'bar'
+    >>>
+    >>> # Read the data written under path: secret/foo
+    >>> read_response = client.secrets.kv.read_secret_version(path='secret/foo')
+    >>> print('Value under path "secret/foo" / key "baz": {val}'.format(
+    ...     val=read_response['data']['data']['baz'],
+    ... ))
+    Value under path "secret/foo" / key "baz": bar
+    >>>
+    >>> # Delete all metadata/versions for path: secret/foo
     >>> client.secrets.kv.delete_metadata_and_all_versions('secret/foo')
     <Response [204]>
 
