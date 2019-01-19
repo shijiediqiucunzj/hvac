@@ -67,6 +67,38 @@ epub_copyright = copyright
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
 
+# -- doctest configuration -------------------------------------------------
+doctest_global_setup = '''
+import os
+
+import hvac
+
+from tests.utils import get_config_file_path, create_client
+from tests.utils.server_manager import ServerManager
+
+client = create_client()
+manager = ServerManager(
+    config_paths=[get_config_file_path('vault-doctest.hcl')],
+    client=client,
+)
+manager.start()
+manager.initialize()
+manager.unseal()
+
+client_cert_path = get_config_file_path('client-cert.pem')
+client_key_path = get_config_file_path('client-key.pem')
+server_cert_path = get_config_file_path('server-cert.pem')
+
+client.token = manager.root_token
+os.environ['VAULT_TOKEN'] = manager.root_token
+#os.environ['VAULT_NAMESPACE'] = 'hvac-rox'
+
+
+'''
+doctest_global_cleanup = '''
+manager.stop()
+'''
+
 # -- Autodoc configuration -------------------------------------------------
 
 
