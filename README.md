@@ -34,12 +34,65 @@ if you would like to be able to return parsed HCL data as a Python dict for meth
 
 Using TLS:
 
-.. doctest::
+.. doctest:: init
 
     >>> client = hvac.Client(url='https://localhost:8200')
     >>> client.is_authenticated()
     True
+    
+Using TLS with client-side certificate authentication:
 
+.. doctest:: init
+
+    >>> client = hvac.Client(
+    ...     url='https://localhost:8200',
+    ...     token=os.environ['VAULT_TOKEN'],
+    ...     cert=(client_cert_path, client_key_path),
+    ...     verify=server_cert_path,
+    ... )
+    >>> client.is_authenticated()
+    True
+
+Using [Vault Enterprise namespace](https://www.vaultproject.io/docs/enterprise/namespaces/index.html):
+
+.. doctest:: init
+
+    >>> client = hvac.Client(
+    ...     url='https://localhost:8200',
+    ...     namespace=os.getenv('VAULT_NAMESPACE'),
+    ... )
+
+Using plaintext / HTTP (not recommended for anything other than development work):
+
+
+.. doctest::
+
+    >>> client = hvac.Client(url='http://localhost:8200')
+
+### Read and write to secrets engines
+
+.. testsetup:: kvv2
+   :skipif: test_utils.vault_version_lt('0.10.0')
+
+   from time import sleep
+
+
+   resp = client.sys.tune_mount_configuration(
+        path='secret',
+        options=dict(version=2)
+   )
+   sleep(1)
+
+.. doctest:: kvv2
+   :skipif: test_utils.vault_version_lt('0.10.0')
+
+    >>> client = test_utils.create_client()
+    >>> client.secrets.kv.create_or_update_secret('secret/foo', secret=dict(baz='bar'))
+    >>> read_response = client.secrets.kv.read_secret_version('secret/foo')
+    >>> read_response['data']['baz']
+    'bar'
+    >>> client.secrets.kv.delete_metadata_and_all_versions('secret/foo')
+    
 
 ```python
 import os

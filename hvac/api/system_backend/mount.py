@@ -114,7 +114,7 @@ class Mount(SystemBackendMixin):
 
     def tune_mount_configuration(self, path, default_lease_ttl=None, max_lease_ttl=None, description=None,
                                  audit_non_hmac_request_keys=None, audit_non_hmac_response_keys=None,
-                                 listing_visibility=None, passthrough_request_headers=None):
+                                 listing_visibility=None, passthrough_request_headers=None, options=None):
         """Tune configuration parameters for a given mount point.
 
         Supported methods:
@@ -144,6 +144,10 @@ class Mount(SystemBackendMixin):
         :param passthrough_request_headers: Comma-separated list of headers to whitelist and pass from the request
             to the backend.
         :type passthrough_request_headers: str
+        :param options: Specifies mount type specific options that are passed to the backend.
+
+            * **version**: <KV> The version of the KV to mount. Set to "2" for mount KV v2.
+        :type options: dict
         :return: The response from the request.
         :rtype: request.Response
         """
@@ -157,6 +161,7 @@ class Mount(SystemBackendMixin):
             'audit_non_hmac_response_keys',
             'listing_visibility',
             'passthrough_request_headers',
+            'options',
         ]
         params = {}
         for optional_parameter in optional_parameters:
