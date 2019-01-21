@@ -94,8 +94,16 @@ os.environ['VAULT_TOKEN'] = manager.root_token
 #os.environ['VAULT_NAMESPACE'] = 'hvac-rox'
 os.environ['REQUESTS_CA_BUNDLE'] = test_utils.get_config_file_path('server-cert.pem')
 from pprint import pprint
-
 '''
+# client.sys.disable_secrets_engine(
+#     path='secret',
+# )
+# client.sys.enable_secrets_engine(
+#     backend_type='kv',
+#     path='kvv1',
+#     options=dict(version=1),
+# )
+
 doctest_global_cleanup = '''
 manager.stop()
 '''

@@ -110,38 +110,31 @@ Read and write to secrets engines
 KV Secrets Engine - Version 2
 """""""""""""""""""""""""""""
 
-.. testsetup:: kvv2
-   :skipif: test_utils.vault_version_lt('0.10.0')
-
-   from time import sleep
-
-
-   resp = client.sys.tune_mount_configuration(
-        path='secret',
-        options=dict(version=2)
-   )
-   sleep(1)
-
-
-.. doctest:: kvv2
+.. doctest::
    :skipif: test_utils.vault_version_lt('0.10.0')
 
     >>> # Retrieve an authenticated hvac.Client() instnace
     >>> client = test_utils.create_client()
     >>>
     >>> # Write a k/v pair under path: secret/foo
-    >>> create_resp = client.secrets.kv.create_or_update_secret(
-    ...     path='secret/foo',
+    >>> create_resp = client.secrets.kv.v2.create_or_update_secret(
+    ...     path='foo',
     ...     secret=dict(baz='bar'),
     ... )
-    >>> print('Created secret version "{ver}" at path "secret/foo"!'.format(
+    >>> pprint(create_resp)
+    >>> create_resp = client.secrets.kv.v2.create_or_update_secret(
+    ...     path='foo',
+    ...     secret=dict(baz='bar'),
+    ... )
+    >>> pprint(create_resp)
+    >>> print('Created secret version "{ver}" at path "foo"!'.format(
     ...     ver=create_resp['data']['version'],
     ... ))
     Created secret version "1" at path "secret/foo"!
     >>>
     >>> # Read the data written under path: secret/foo
     >>> read_response = client.secrets.kv.read_secret_version(path='secret/foo')
-    >>> print('Value under path "secret/foo" / key "baz": {val}'.format(
+    >>> print('Value under path "foo" / key "baz": {val}'.format(
     ...     val=read_response['data']['data']['baz'],
     ... ))
     Value under path "secret/foo" / key "baz": bar
@@ -149,6 +142,27 @@ KV Secrets Engine - Version 2
     >>> # Delete all metadata/versions for path: secret/foo
     >>> client.secrets.kv.delete_metadata_and_all_versions('secret/foo')
     <Response [204]>
+
+
+KV Secrets Engine - Version 1
+"""""""""""""""""""""""""""""
+
+Latest usage:
+
+
+
+Generic usage:
+
+.. doctest::
+   :skipif: test_utils.vault_version_ge('0.10.0')
+
+    >>> client.write('kvv1/foo', baz='bar', lease='1h')
+    >>> read_response = client.read('secret/foo')
+    >>> print('Value under path "kvv1/foo" / key "baz": {val}'.format(
+    ...     val=read_response['data']['baz'],
+    ... ))
+    Value under path "secret/foo" / key "baz": bar
+    >>> client.delete('kvv1/foo')
 
 
 
