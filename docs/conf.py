@@ -70,32 +70,21 @@ epub_exclude_files = ['search.html']
 # -- doctest configuration -------------------------------------------------
 doctest_global_setup = '''
 import os
+from pprint import pprint, pformat
+
+import mock
 
 import hvac
-
 from tests import utils as test_utils
+from tests.doctest import doctest_global_setup
 from tests.utils.server_manager import ServerManager
-
-client = test_utils.create_client()
-manager = ServerManager(
-    config_paths=[test_utils.get_config_file_path('vault-doctest.hcl')],
-    client=client,
-)
-manager.start()
-manager.initialize()
-manager.unseal()
 
 client_cert_path = test_utils.get_config_file_path('client-cert.pem')
 client_key_path = test_utils.get_config_file_path('client-key.pem')
 server_cert_path = test_utils.get_config_file_path('server-cert.pem')
 
-client.token = manager.root_token
-os.environ['VAULT_TOKEN'] = manager.root_token
-#os.environ['VAULT_NAMESPACE'] = 'hvac-rox'
-os.environ['REQUESTS_CA_BUNDLE'] = test_utils.get_config_file_path('server-cert.pem')
-from pprint import pprint, pformat
-
-
+manager = doctest_global_setup()
+client = manager.client
 '''
 # client.sys.disable_secrets_engine(
 #     path='secret',

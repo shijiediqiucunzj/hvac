@@ -35,7 +35,7 @@ hvac
    :alt: Twitter - @python_hvac
 
 
-Tested against the latest release, HEAD ref, and 3 previous major versions (counting back from the latest release) of Vault. 
+Tested against the latest release, HEAD ref, and 3 previous major versions (counting back from the latest release) of Vault.
 Currently supports Vault v0.9.6 or later.
 
 Documentation
@@ -111,7 +111,7 @@ KV Secrets Engine - Version 2
 """""""""""""""""""""""""""""
 
 .. doctest::
-   :skipif: True
+   :skipif: client.sys.retrieve_mount_option('secret', 'version', 1) != 2
 
     >>> # Retrieve an authenticated hvac.Client() instnace
     >>> client = test_utils.create_client()
@@ -150,30 +150,30 @@ KV Secrets Engine - Version 1
 Current usage:
 
 .. doctest::
-   :skipif: True
+   :skipif: client.sys.retrieve_mount_option('secret', 'version', 1) != 1
 
-    >>> client.write('kvv1/foo', baz='bar', lease='1h')
+    >>> client.write('secret/foo', baz='bar', lease='1h')
     >>> read_response = client.read('secret/foo')
-    >>> print('Value under path "kvv1/foo" / key "baz": {val}'.format(
+    >>> print('Value under path "secret/foo" / key "baz": {val}'.format(
     ...     val=read_response['data']['baz'],
     ... ))
     Value under path "secret/foo" / key "baz": bar
-    >>> client.delete('kvv1/foo')
+    >>> client.delete('secret/foo')
 
 
 
 Generic usage:
 
 .. doctest::
-   :skipif: True
+   :skipif: client.sys.retrieve_mount_option('secret', 'version', 1) != 1
 
-    >>> client.write('kvv1/foo', baz='bar', lease='1h')
+    >>> client.write('secret/foo', baz='bar', lease='1h')
     >>> read_response = client.read('secret/foo')
-    >>> print('Value under path "kvv1/foo" / key "baz": {val}'.format(
+    >>> print('Value under path "secret/foo" / key "baz": {val}'.format(
     ...     val=read_response['data']['baz'],
     ... ))
     Value under path "secret/foo" / key "baz": bar
-    >>> client.delete('kvv1/foo')
+    >>> client.delete('secret/foo')
 
 
 
@@ -225,10 +225,37 @@ LDAP Authentication Example
 """""""""""""""""""""""""""
 
 .. testsetup:: ldap
-    from ldap_test import LdapServer
-    assert LdapServer
+
+    from tests.utils.mock_ldap_server import MockLdapServer
+    ldap_server = MockLdapServer()
+    ldap_server.start()
+    client.sys.enable_auth_method(
+        method_type='ldap',
+    )
+    client.auth.ldap.configure(
+        url=ldap_server.url,
+        bind_dn=ldap_server.ldap_bind_dn,
+        bind_pass=ldap_server.ldap_bind_password,
+        user_dn=ldap_server.ldap_users_dn,
+        user_attr='uid',
+        group_dn=ldap_server.ldap_groups_dn,
+        group_attr='cn',
+        insecure_tls=True,
+    )
+    client.auth.ldap.create_or_update_group(
+        name=ldap_server.ldap_group_name,
+        policies=['default'],
+    )
 
 .. doctest:: ldap
 
    >>> # LDAP, getpass -> user/password, bring in LDAP3 here for teststup?
-   >>> getpass('Gimmie your LDAP password')
+   >>> client.auth.ldap.login(
+   ...     username=os.environ['LDAP_USERNAME'],
+   ...     password=os.environ['LDAP_PASSWORD'],
+   ... )
+   {'request_id':...'auth': {'client_token':...}}
+
+.. testcleanup:: ldap
+
+    ldap_server.stop()

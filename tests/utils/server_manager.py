@@ -125,7 +125,7 @@ class ServerManager(object):
             try:
                 vault_address = 'https://{addr}'.format(addr=config['listener']['tcp']['address'])
             except KeyError as error:
-                logger.error('Unable to find explict Vault address in config file {path}: {err}'.format(
+                logger.debug('Unable to find explict Vault address in config file {path}: {err}'.format(
                     path=config_path,
                     err=error,
                 ))
