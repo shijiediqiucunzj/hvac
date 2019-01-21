@@ -99,7 +99,7 @@ Using `Vault Enterprise namespace <https://www.vaultproject.io/docs/enterprise/n
 
 Using plaintext / HTTP (not recommended for anything other than development work):
 
-.. doctest::
+.. doctest:: init
 
     >>> client = hvac.Client(url='http://localhost:8200')
 
@@ -111,7 +111,7 @@ KV Secrets Engine - Version 2
 """""""""""""""""""""""""""""
 
 .. doctest::
-   :skipif: test_utils.vault_version_lt('0.10.0')
+   :skipif: True
 
     >>> # Retrieve an authenticated hvac.Client() instnace
     >>> client = test_utils.create_client()
@@ -147,14 +147,25 @@ KV Secrets Engine - Version 2
 KV Secrets Engine - Version 1
 """""""""""""""""""""""""""""
 
-Latest usage:
+Current usage:
+
+.. doctest::
+   :skipif: True
+
+    >>> client.write('kvv1/foo', baz='bar', lease='1h')
+    >>> read_response = client.read('secret/foo')
+    >>> print('Value under path "kvv1/foo" / key "baz": {val}'.format(
+    ...     val=read_response['data']['baz'],
+    ... ))
+    Value under path "secret/foo" / key "baz": bar
+    >>> client.delete('kvv1/foo')
 
 
 
 Generic usage:
 
 .. doctest::
-   :skipif: test_utils.vault_version_ge('0.10.0')
+   :skipif: True
 
     >>> client.write('kvv1/foo', baz='bar', lease='1h')
     >>> read_response = client.read('secret/foo')
@@ -197,11 +208,27 @@ Read and write to secret backends
 
    client.delete('secret/foo')
 
-Authenticate using token auth backend
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Authentication
+^^^^^^^^^^^^^^
 
-.. code-block:: python
+Basic Token Authentication
+""""""""""""""""""""""""""
+
+.. doctest::
 
    # Token
-   client.token = 'MY_TOKEN'
-   assert client.is_authenticated() # => True
+   >>> client.token = os.environ['VAULT_TOKEN']
+   >>> client.is_authenticated()
+   True
+
+LDAP Authentication Example
+"""""""""""""""""""""""""""
+
+.. testsetup:: ldap
+    from ldap_test import LdapServer
+    assert LdapServer
+
+.. doctest:: ldap
+
+   >>> # LDAP, getpass -> user/password, bring in LDAP3 here for teststup?
+   >>> getpass('Gimmie your LDAP password')
