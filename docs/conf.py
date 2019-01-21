@@ -93,7 +93,9 @@ client.token = manager.root_token
 os.environ['VAULT_TOKEN'] = manager.root_token
 #os.environ['VAULT_NAMESPACE'] = 'hvac-rox'
 os.environ['REQUESTS_CA_BUNDLE'] = test_utils.get_config_file_path('server-cert.pem')
-from pprint import pprint
+from pprint import pprint, pformat
+
+
 '''
 # client.sys.disable_secrets_engine(
 #     path='secret',
