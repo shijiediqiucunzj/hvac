@@ -246,16 +246,22 @@ LDAP Authentication Example
         name=ldap_server.ldap_group_name,
         policies=['default'],
     )
+    client.token = None
 
 .. doctest:: ldap
-
+   >>> client = hvac.Client(url='https://localhost:8200')
+   >>> client.is_authenticated()
+   False
    >>> # LDAP, getpass -> user/password, bring in LDAP3 here for teststup?
-   >>> client.auth.ldap.login(
+   >>> login_response = client.auth.ldap.login(
    ...     username=os.environ['LDAP_USERNAME'],
    ...     password=os.environ['LDAP_PASSWORD'],
    ... )
+   >>> client.is_authenticated()
+   True
+   >>> pprint(login_response)
    {'request_id':...'auth': {'client_token':...}}
 
 .. testcleanup:: ldap
-
+    client.token = os.environ['VAULT_TOKEN']
     ldap_server.stop()
