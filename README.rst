@@ -249,6 +249,7 @@ LDAP Authentication Example
     client.token = None
 
 .. doctest:: ldap
+
    >>> client = hvac.Client(url='https://localhost:8200')
    >>> client.is_authenticated()
    False
@@ -263,5 +264,6 @@ LDAP Authentication Example
    {'request_id':...'auth': {'client_token':...}}
 
 .. testcleanup:: ldap
+
     client.token = os.environ['VAULT_TOKEN']
     ldap_server.stop()
