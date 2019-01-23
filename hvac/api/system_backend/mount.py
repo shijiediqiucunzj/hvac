@@ -17,7 +17,7 @@ class Mount(SystemBackendMixin):
 
     def retrieve_mount_option(self, mount_point, option_name, default_value=None):
         secrets_engine_path = '{mount_point}/'.format(mount_point=mount_point)
-        secrets_engines_list = self.list_mounted_secrets_engines()
+        secrets_engines_list = self.list_mounted_secrets_engines()['data']
         mount_options = secrets_engines_list[secrets_engine_path].get('options')
         if mount_options is None:
             return default_value
