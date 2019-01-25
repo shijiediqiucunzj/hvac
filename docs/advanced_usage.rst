@@ -16,14 +16,14 @@ As `documented in the advanced usage section for requests`_ this environment var
 
 Alternative, this envrionmental variable can be set via the `os` module in-line with other Python statements. The following example would be one way to manage this configuration on a Ubuntu host:
 
-.. code:: python
+.. testcode:: private-ca
 
 	import os
 
 	import hvac
 
 
-	def get_vault_client(vault_url=VAULT_URL, certs=VAULT_CERTS):
+	def get_vault_client(vault_url='https://127.0.0.1', certs=None):
 		"""
 		Instantiates a hvac / vault client.
 		:param vault_url: string, protocol + address + port for the vault service
@@ -41,12 +41,6 @@ Alternative, this envrionmental variable can be set via the `os` module in-line 
 			url=vault_url,
 			cert=certs,
 		)
-
-		vault_client.token = load_vault_token(vault_client)
-
-		if not vault_client.is_authenticated():
-			error_msg = 'Unable to authenticate to the Vault service'
-			raise hvac.exceptions.Unauthorized(error_msg)
 
 		return vault_client
 

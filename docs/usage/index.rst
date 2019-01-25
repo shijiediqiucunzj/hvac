@@ -11,32 +11,47 @@ Usage
 Initialize and seal/unseal
 --------------------------
 
-.. code:: python
+.. testsetup:: init-seal-and-unseal
 
-    print(client.sys.is_initialized()) # => False
+    manager.restart_vault_cluster(perform_init=False)
+    client.token = manager.root_token
 
-    shares = 5
-    threshold = 3
+.. doctest:: init-seal-and-unseal
 
-    result = client.sys.initialize(shares, threshold)
+    >>> client.sys.is_initialized()
+    False
 
-    root_token = result['root_token']
-    keys = result['keys']
+    >>> shares = 5
+    >>> threshold = 3
+    >>> result = client.sys.initialize(shares, threshold)
+    >>> root_token = result['root_token']
+    >>> keys = result['keys']
+    >>> client.sys.is_initialized()
+    True
 
-    print(client.sys.is_initialized()) # => True
+    >>> client.token = root_token
 
-    print(client.sys.is_sealed()) # => True
+    >>> client.sys.is_sealed()
+    True
+    >>> # Unseal a Vault cluster with individual keys
+    >>> unseal_response1 = client.sys.submit_unseal_key(keys[0])
+    >>> unseal_response2 = client.sys.submit_unseal_key(keys[1])
+    >>> unseal_response3 = client.sys.submit_unseal_key(keys[2])
+    >>> client.sys.is_sealed()
+    False
+    >>> # Seal a previously unsealed Vault cluster.
+    >>> client.sys.seal()
+    <Response [204]>
+    >>> client.sys.is_sealed()
+    True
 
-    # unseal with individual keys
-    client.sys.unseal(keys[0])
-    client.sys.unseal(keys[1])
-    client.sys.unseal(keys[2])
+    >>> # Unseal with multiple keys until threshold met
+    >>> unseal_response = client.sys.submit_unseal_keys(keys)
 
-    # unseal with multiple keys until threshold met
-    client.sys.unseal_multi(keys)
+    >>> client.sys.is_sealed()
+    False
 
-    print(client.sys.is_sealed()) # => False
+.. testcleanup:: init-seal-and-unseal
 
-    client.sys.seal()
-
-    print(client.sys.is_sealed()) # => True
+    manager.restart_vault_cluster(perform_init=True)
+    client.token = manager.root_token

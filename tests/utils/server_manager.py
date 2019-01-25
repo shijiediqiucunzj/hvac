@@ -110,10 +110,12 @@ class ServerManager(object):
         self.root_token = result['root_token']
         self.keys = result['keys']
 
-    def restart_vault_cluster(self):
+    def restart_vault_cluster(self, perform_init=True):
+        # TODO: rename to just plain 'ole restart?
         self.stop()
         self.start()
-        self.initialize()
+        if perform_init:
+            self.initialize()
 
     def get_active_vault_addresses(self):
         vault_addresses = []

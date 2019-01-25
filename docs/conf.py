@@ -28,6 +28,7 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
+    'sphinx_copybutton',
     'sphinx.ext.githubpages',
     'm2r',
 ]
