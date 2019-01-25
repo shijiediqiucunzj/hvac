@@ -110,62 +110,64 @@ Read and write to secrets engines
 KV Secrets Engine - Version 2
 """""""""""""""""""""""""""""
 
-.. doctest::
-   :skipif: client.sys.retrieve_mount_option('secret', 'version', 1) != 2
+.. note::
 
-    >>> # Retrieve an authenticated hvac.Client() instnace
+    Starting with Vault v0.10.0, the KV secrets engine mounted under the `secret/` path is configured to run version 2
+    of the secrets engine by default.
+
+
+.. doctest:: kvv2
+   :skipif: client.sys.retrieve_mount_option('secret', 'version', 1) != 2 and os.getenv('HVAC_RENDER_DOCTESTS') is None
+
+    >>> # Retrieve an authenticated hvac.Client() instance
     >>> client = test_utils.create_client()
     >>>
     >>> # Write a k/v pair under path: secret/foo
-    >>> create_resp = client.secrets.kv.v2.create_or_update_secret(
+    >>> create_response = client.secrets.kv.v2.create_or_update_secret(
     ...     path='foo',
     ...     secret=dict(baz='bar'),
     ... )
-    >>> pprint(create_resp)
-    >>> create_resp = client.secrets.kv.v2.create_or_update_secret(
-    ...     path='foo',
-    ...     secret=dict(baz='bar'),
-    ... )
-    >>> pprint(create_resp)
-    >>> print('Created secret version "{ver}" at path "foo"!'.format(
-    ...     ver=create_resp['data']['version'],
-    ... ))
-    Created secret version "1" at path "secret/foo"!
     >>>
     >>> # Read the data written under path: secret/foo
-    >>> read_response = client.secrets.kv.read_secret_version(path='secret/foo')
-    >>> print('Value under path "foo" / key "baz": {val}'.format(
+    >>> read_response = client.secrets.kv.read_secret_version(path='foo')
+    >>> print('Value under path "secret/foo" / key "baz": {val}'.format(
     ...     val=read_response['data']['data']['baz'],
     ... ))
     Value under path "secret/foo" / key "baz": bar
     >>>
     >>> # Delete all metadata/versions for path: secret/foo
-    >>> client.secrets.kv.delete_metadata_and_all_versions('secret/foo')
+    >>> client.secrets.kv.delete_metadata_and_all_versions('foo')
     <Response [204]>
 
 
 KV Secrets Engine - Version 1
 """""""""""""""""""""""""""""
 
-Current usage:
+Preferred usage:
 
-.. doctest::
-   :skipif: client.sys.retrieve_mount_option('secret', 'version', 1) != 1
+.. doctest:: kvv1
+   :skipif: client.sys.retrieve_mount_option('secret', 'version', 1) != 1 and os.getenv('HVAC_RENDER_DOCTESTS') is None
 
-    >>> client.write('secret/foo', baz='bar', lease='1h')
-    >>> read_response = client.read('secret/foo')
+    >>> client.secrets.kv.default_kv_version = '1'
+    >>> client.secrets.kv.create_or_update_secret('foo', secret=dict(baz='bar'))
+    >>> read_response = client.secrest.kv.read_secret('foo')
     >>> print('Value under path "secret/foo" / key "baz": {val}'.format(
     ...     val=read_response['data']['baz'],
     ... ))
     Value under path "secret/foo" / key "baz": bar
-    >>> client.delete('secret/foo')
+    >>> client.secrets.kv.delete_secret('foo')
 
 
 
 Generic usage:
 
-.. doctest::
-   :skipif: client.sys.retrieve_mount_option('secret', 'version', 1) != 1
+.. note::
+
+   The following `read()` and `write()` methods are roughly equivalent to the equivalent Vault CLI commands. These methods
+    do not offer the same level of validation that hvac methods specific to individual auth methods and secrets engines provide.
+
+.. doctest:: kvv1
+   :skipif: client.sys.retrieve_mount_option('secret', 'version', 1) != 1 and os.getenv('HVAC_DOCTEST') is not None
 
     >>> client.write('secret/foo', baz='bar', lease='1h')
     >>> read_response = client.read('secret/foo')
@@ -175,38 +177,6 @@ Generic usage:
     Value under path "secret/foo" / key "baz": bar
     >>> client.delete('secret/foo')
 
-
-
-.. code-block:: python
-
-   import os
-
-   import hvac
-
-   # Using plaintext
-   client = hvac.Client()
-   client = hvac.Client(url='http://localhost:8200')
-   client = hvac.Client(url='http://localhost:8200', token=os.environ['VAULT_TOKEN'])
-
-   # Using TLS
-   client = hvac.Client(url='https://localhost:8200')
-
-   # Using TLS with client-side certificate authentication
-   client = hvac.Client(url='https://localhost:8200', cert=('path/to/cert.pem', 'path/to/key.pem'))
-
-   # Using Namespace
-   client = hvac.Client(url='http://localhost:8200', token=os.environ['VAULT_TOKEN'], namespace=os.environ['VAULT_NAMESPACE'])
-
-Read and write to secret backends
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   client.write('secret/foo', baz='bar', lease='1h')
-
-   print(client.read('secret/foo'))
-
-   client.delete('secret/foo')
 
 Authentication
 ^^^^^^^^^^^^^^
@@ -251,8 +221,6 @@ LDAP Authentication Example
 .. doctest:: ldap
 
    >>> client = hvac.Client(url='https://localhost:8200')
-   >>> client.is_authenticated()
-   False
    >>> # LDAP, getpass -> user/password, bring in LDAP3 here for teststup?
    >>> login_response = client.auth.ldap.login(
    ...     username=os.environ['LDAP_USERNAME'],
@@ -260,8 +228,10 @@ LDAP Authentication Example
    ... )
    >>> client.is_authenticated()
    True
-   >>> pprint(login_response)
-   {'request_id':...'auth': {'client_token':...}}
+   >>> print('The client token returned from the LDAP auth method is: {token}'.format(
+   ...     token=login_response['auth']['client_token']
+   ... ))
+   The client token returned from the LDAP auth method is: ...
 
 .. testcleanup:: ldap
 

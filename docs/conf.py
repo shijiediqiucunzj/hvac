@@ -49,7 +49,7 @@ pygments_style = 'sphinx'
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
-
+html_context = {'no_skippy': True}
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
@@ -85,6 +85,10 @@ server_cert_path = test_utils.get_config_file_path('server-cert.pem')
 
 manager = doctest_global_setup()
 client = manager.client
+
+from requests_mock.mocker import Mocker
+mocker = Mocker(real_http=True)
+mocker.start()
 '''
 # client.sys.disable_secrets_engine(
 #     path='secret',
@@ -96,6 +100,7 @@ client = manager.client
 # )
 
 doctest_global_cleanup = '''
+mocker.stop()
 manager.stop()
 '''
 
