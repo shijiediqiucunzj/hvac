@@ -148,8 +148,8 @@ Preferred usage:
    :skipif: client.sys.retrieve_mount_option('secret', 'version', 1) != 1 and os.getenv('HVAC_RENDER_DOCTESTS') is None
 
     >>> client.secrets.kv.default_kv_version = '1'
-    >>> client.secrets.kv.create_or_update_secret('foo', secret=dict(baz='bar'))
-    >>> read_response = client.secrest.kv.read_secret('foo')
+    >>> create_response = client.secrets.kv.create_or_update_secret('foo', secret=dict(baz='bar'))
+    >>> read_response = client.secrets.kv.read_secret('foo')
     >>> print('Value under path "secret/foo" / key "baz": {val}'.format(
     ...     val=read_response['data']['baz'],
     ... ))
