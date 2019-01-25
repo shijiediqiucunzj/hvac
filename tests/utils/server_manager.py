@@ -84,9 +84,7 @@ class ServerManager(object):
                 assert node_health[0]['Status'] == 'passing', 'Node {name} status != "passing"'.format(name=node_name)
                 return True
             except Exception as error:
-                logging.debug('Unable to connect to consul while waiting for process to start:\n{0}\n{1}'.format(
-                    self._processes[0].communicate(),
-                ))
+                logging.debug('Unable to connect to consul while waiting for process to start: {err}'.format(err=error))
                 time.sleep(0.5)
                 attempts_left -= 1
                 last_exception = error
