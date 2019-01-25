@@ -121,7 +121,7 @@ class KvV2(VaultApiBase):
             url=api_path,
             json=params,
         )
-        return response  #.json()
+        return response.json()
 
     def patch(self, path, secret, mount_point=DEFAULT_MOUNT_POINT):
         """Set or update data in the KV store without overwriting.

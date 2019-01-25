@@ -112,8 +112,7 @@ KV Secrets Engine - Version 2
 
 .. note::
 
-    Starting with Vault v0.10.0, the KV secrets engine mounted under the `secret/` path is configured to run version 2
-    of the secrets engine by default.
+    Vault currently defaults to KV version 2 automatically when a `Vault server is running in "dev" mode <https://www.vaultproject.io/docs/secrets/kv/kv-v2.html#setup>`_.
 
 
 .. doctest:: kvv2
