@@ -154,7 +154,7 @@ Preferred usage:
     ...     val=read_response['data']['baz'],
     ... ))
     Value under path "secret/foo" / key "baz": bar
-    >>> client.secrets.kv.delete_secret('foo')
+    >>> delete_response = client.secrets.kv.delete_secret('foo')
 
 
 
