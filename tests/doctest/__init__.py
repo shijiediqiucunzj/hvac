@@ -6,6 +6,7 @@ from tests import utils as test_utils
 from tests.utils.server_manager import ServerManager
 from tests.utils.mock_ldap_server import MockLdapServer
 
+
 def doctest_global_setup():
     client = test_utils.create_client()
     manager = ServerManager(
