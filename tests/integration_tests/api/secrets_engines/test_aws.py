@@ -255,8 +255,9 @@ class TestAws(HvacIntegrationTestCase, TestCase):
                     d2=self.TEST_POLICY_DOCUMENT,
                 )
             else:
+                key_name = 'credential_types' if vault_version_lt('1.0.2') else 'credential_type'
                 self.assertEqual(
-                    first=read_role_response['data']['credential_types'],
+                    first=read_role_response['data'][key_name],
                     second=['iam_user'],
                 )
 
