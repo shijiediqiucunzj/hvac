@@ -3,19 +3,30 @@
 Azure
 =====
 
-.. note::
-    Every method under the :py:attr:`Azure class<hvac.api.secrets_engines.Azure>` includes a `mount_point` parameter that can be used to address the Azure secret engine under a custom mount path. E.g., If enabling the Azure secret engine using Vault's CLI commands via `vault secrets enable -path=my-azure azure`", the `mount_point` parameter in :py:meth:`hvac.api.secrets_engines.Azure` methods would need to be set to "my-azure".
+.. contents::
+   :local:
+   :depth: 1
+
+.. testsetup:: azure-secrets
+
+    client.sys.enable_secrets_engine(
+        backend_type='azure',
+    )
 
 
 Configure
 ---------
 
-:py:meth:`hvac.api.secrets_engines.Azure.configure`
+.. automethod:: hvac.api.secrets_engines.Azure.configure
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: azure-secrets
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.secrets.azure.configure(
         subscription_id='my-subscription-id',
@@ -25,39 +36,65 @@ Configure
 Read Config
 -----------
 
-:py:meth:`hvac.api.secrets_engines.Azure.read_config`
+.. automethod:: hvac.api.secrets_engines.Azure.read_config
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: azure-secrets
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     azure_secret_config = client.secrets.azure.read_config()
     print('The Azure secret engine is configured with a subscription ID of {id}'.format(
         id=azure_secret_config['subscription_id'],
     ))
 
+Example output:
+
+.. testoutput:: azure-secrets
+
+    The Azure secret engine is configured with a subscription ID of my-subscription-id
+
 Delete Config
 -------------
 
-:py:meth:`hvac.api.secrets_engines.Azure.delete_config`
+.. automethod:: hvac.api.secrets_engines.Azure.delete_config
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testsetup:: azure-secrets-delete-config
+
+    client.sys.enable_secrets_engine(
+        backend_type='azure',
+    )
+
+.. testcode:: azure-secrets-delete-config
+
+    # TODO: figure out why we can't configure the engine again after the delete_config method is called...
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.secrets.azure.delete_config()
 
 Create Or Update A Role
 -----------------------
 
-:py:meth:`hvac.api.secrets_engines.Azure.create_or_update_role`
+.. automethod:: hvac.api.secrets_engines.Azure.create_or_update_role
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: azure-secrets
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
 
     azure_roles = [
@@ -67,42 +104,72 @@ Create Or Update A Role
         },
     ]
     client.secrets.azure.create_or_update_role(
-        name='my-azure-secret-role',
+        name='hvac',
         azure_roles=azure_roles,
     )
 
 List Roles
 ----------
 
-:py:meth:`hvac.api.secrets_engines.Azure.list_roles`
+.. automethod:: hvac.api.secrets_engines.Azure.list_roles
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: azure-secrets
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     azure_secret_engine_roles = client.secrets.azure.list_roles()
     print('The following Azure secret roles are configured: {roles}'.format(
-        roles=','.join(roles['keys']),
+        roles=', '.join(azure_secret_engine_roles['keys']),
     ))
+
+Example output:
+
+.. testoutput:: azure-secrets
+
+    The following Azure secret roles are configured: hvac
 
 
 Generate Credentials
 --------------------
 
-:py:meth:`hvac.api.secrets_engines.Azure.generate_credentials`
+.. automethod:: hvac.api.secrets_engines.Azure.generate_credentials
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testsetup:: azure-secrets
+
+    from mock import patch
+    azure_spc_patcher = patch('azure.common.credentials.ServicePrincipalCredentials')
+    mock_azure_spc = azure_spc_patcher.start()
+
+.. testcode:: azure-secrets
 
     import hvac
     from azure.common.credentials import ServicePrincipalCredentials
 
-    client = hvac.Client()
-    azure_creds = client.secrets.azure.secret.generate_credentials(
-        name='some-azure-role-name',
+    client = hvac.Client(url='https://127.0.0.1:8200')
+    azure_creds = client.secrets.azure.generate_credentials(
+        name='hvac',
     )
     azure_spc = ServicePrincipalCredentials(
         client_id=azure_creds['client_id'],
         secret=azure_creds['client_secret'],
-        tenant=TENANT_ID,
+        tenant='my-tenant-id',
+    )
+
+.. testcleanup:: azure-secrets
+
+    azure_spc_patcher.stop()
+
+.. testcleanup:: azure-secrets
+
+    client.sys.disable_secrets_engine(
+        path='azure',
     )

@@ -2,22 +2,76 @@ AWS
 ===
 
 .. contents::
+   :local:
+   :depth: 1
+
+Configuration
+-------------
+
+.. automethod:: hvac.v1.Client.create_vault_ec2_client_configuration
+   :noindex:
+
+Caveats For Non-Default AWS Regions
+```````````````````````````````````
+
+I.e., calling :py:meth:`hvac.v1.Client.auth_aws_iam` with a `region` argument other than its default of "**us-east-1**". For additional background / context on this matter, see the comments at `hvac#251`_ and/or `vault-ruby#161`_.
+
+The following code snippets are for authenticating hosts in the **us-west-1** region:
+
+.. note::
+    In order to authenticate to various regions, the AWS auth method configuration needs to be set up with an "endpoint URL" corresponding to the region in question. E.g.: "**https://sts.us-west-1.amazonaws.com**" in the case of this example. Vault defaults to an endpoint of "**https://sts.amazonaws.com**" if not configured with a different endpoint URL.
+
+.. testsetup:: aws_auth_config
+
+    client.sys.enable_auth_method(method_type='aws')
+
+.. testcode:: aws_auth_config
+
+    import boto3
+    import hvac
+
+    VAULT_ADDR = os.environ["VAULT_ADDR"]
+    VAULT_HEADER_VALUE = os.environ["VAULT_HEADER_VALUE"]
+
+    client = hvac.Client(url=VAULT_ADDR)
+
+    # One-time setup of the credentials / configuration for the Vault server to use.
+    # Note the explicit region subdomain bit included in the endpoint argument.
+    client.create_vault_ec2_client_configuration(
+        access_key='SOME_ACCESS_KEY_FOR_VAULTS_USE',
+        secret_key='SOME_ACCESS_KEY_FOR_VAULTS_USE',
+        endpoint='https://sts.us-west-1.amazonaws.com',
+        mount_point='aws',
+    )
+
+    session = boto3.Session()
+    creds = session.get_credentials().get_frozen_credentials()
+    client.auth_aws_iam(
+        creds.access_key,
+        creds.secret_key,
+        creds.token,
+        region="us-west-1",
+        header_value=VAULT_HEADER_VALUE,
+        role='some-role',
+        use_token=True,
+    )
 
 IAM Authentication
 ------------------
 
-Source reference: :py:meth:`hvac.v1.Client.auth_aws_iam`
+.. automethod:: hvac.v1.Client.auth_aws_iam
+   :noindex:
 
 Static Access Key Strings
 `````````````````````````
 
 Various examples of authenticating with static access key strings:
 
-.. code:: python
+.. testcode:: aws_iam
 
     import hvac
 
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.auth_aws_iam('MY_AWS_ACCESS_KEY_ID', 'MY_AWS_SECRET_ACCESS_KEY')
     client.auth_aws_iam('MY_AWS_ACCESS_KEY_ID', 'MY_AWS_SECRET_ACCESS_KEY', 'MY_AWS_SESSION_TOKEN')
@@ -29,7 +83,7 @@ Boto3 Session
 
 Retrieving credentials from a boto3 Session object:
 
-.. code:: python
+.. testcode:: aws_iam
 
     import boto3
     import hvac
@@ -37,7 +91,7 @@ Retrieving credentials from a boto3 Session object:
     session = boto3.Session()
     credentials = session.get_credentials()
 
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
     client.auth_aws_iam(credentials.access_key, credentials.secret_key, credentials.token)
 
 EC2 Metadata Service
@@ -45,7 +99,7 @@ EC2 Metadata Service
 
 Retrieving static instance role credentials within an EC2 instnace using the EC2 metadata service (the EC2 auth method is probably a better fit for this case, which is outlined below under `EC2 Authentication`_):
 
-.. code:: python
+.. testcode:: aws_iam
 
     import logging
     import requests
@@ -75,13 +129,13 @@ Retrieving static instance role credentials within an EC2 instnace using the EC2
 
     credentials = load_aws_ec2_role_iam_credentials('some-instance-role')
 
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
     client.auth_aws_iam(credentials['AccessKeyId'], credentials['SecretAccessKey'], credentials['Token'])
 
 Lambda and/or EC2 Instance
 ``````````````````````````
 
-.. code:: python
+.. testcode:: aws_iam
 
     import os
     import hvac
@@ -98,63 +152,28 @@ Lambda and/or EC2 Instance
 
     access_key_id, secret_access_key = infer_credentials_from_iam_role('some-role')
 
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
     client.auth_aws_iam(access_key_id, secret_access_key)
-
-Caveats For Non-Default AWS Regions
-```````````````````````````````````
-
-I.e., calling :py:meth:`hvac.v1.Client.auth_aws_iam` with a `region` argument other than its default of "**us-east-1**". For additional background / context on this matter, see the comments at `hvac#251`_ and/or `vault-ruby#161`_.
-
-The following code snippets are for authenticating hosts in the **us-west-1** region:
-
-.. note::
-    In order to authenticate to various regions, the AWS auth method configuration needs to be set up with an "endpoint URL" corresponding to the region in question. E.g.: "**https://sts.us-west-1.amazonaws.com**" in the case of this example. Vault defaults to an endpoint of "**https://sts.amazonaws.com**" if not configured with a different endpoint URL.
-
-.. code:: python
-
-    import boto3
-    import hvac
-
-    VAULT_ADDR = os.environ["VAULT_ADDR"]
-    VAULT_HEADER_VALUE = os.environ["VAULT_HEADER_VALUE"]
-
-    client = hvac.Client(url=VAULT_ADDR)
-
-    # One-time setup of the credentials / configuration for the Vault server to use.
-    # Note the explicit region subdomain bit included in the endpoint argument.
-    client.create_vault_ec2_client_configuration(
-        access_key='SOME_ACCESS_KEY_FOR_VAULTS_USE',
-        secret_key='SOME_ACCESS_KEY_FOR_VAULTS_USE',
-        endpoint='https://sts.us-west-1.amazonaws.com',
-    )
-
-    session = boto3.Session()
-    creds = session.get_credentials().get_frozen_credentials()
-    client.auth_aws_iam(
-        creds.access_key,
-        creds.secret_key,
-        creds.token,
-        region="us-west-1",
-        header_value=VAULT_HEADER_VALUE,
-        role='some-role,
-        use_token=True,
-    )
 
 
 EC2 Authentication
 ------------------
 
-Source reference: :py:meth:`hvac.v1.Client.auth_ec2`
+.. automethod:: hvac.v1.Client.auth_ec2
+   :noindex:
 
 EC2 Metadata Service
 ````````````````````
 
 Authentication using EC2 instance role credentials and the EC2 metadata service
 
-.. code:: python
+.. testsetup:: aws_ec2
 
-    #!/usr/bin/env python
+    if 'VAULT_TOKEN' in os.environ:
+        del os.environ['VAULT_TOKEN']
+
+.. testcode:: aws_ec2
+
     import logging.handlers
     import os
 
@@ -166,7 +185,6 @@ Authentication using EC2 instance role credentials and the EC2 metadata service
     logger = logging.getLogger(__name__)
 
     VAULT_URL = os.getenv('VAULT_ADDR', 'https://127.0.0.1:8200')
-    VAULT_CERTS = ('/etc/vault.d/ssl/bundle.crt', '/etc/vault.d/ssl/vault.key')
     TOKEN_NONCE_PATH = os.getenv('WP_VAULT_TOKEN_NONCE_PATH', '/root/.vault-token-meta-nonce')
     EC2_METADATA_URL_BASE = 'http://169.254.169.254'
 
@@ -242,7 +260,7 @@ Authentication using EC2 instance role credentials and the EC2 metadata service
             pkcs7 = load_aws_ec2_pkcs7_string()
 
         if nonce is None:
-            logger.debug('No nonce argument provided to auth_ec2 backend.'
+            logger.debug('No nonce argument provided to auth_ec2 backend.')
             logger.debug('Attempting to retrieve information from disk.')
             nonce = load_aws_ec2_nonce_from_disk()
 
@@ -264,8 +282,26 @@ Authentication using EC2 instance role credentials and the EC2 metadata service
 
         return auth_ec2_resp
 
+    def load_vault_token(vault_client, ec2_role=None):
+        """
+        Retrieves a vault token, first from a "VAULT_TOKEN" env var if available. If this env var is unavailable, we use a
+        Vault authentication backend to retrieve a token (currently limited to AWS EC2 authentication)
+        :param vault_client: hvac.Client
+        :param ec2_role: str, Name of the Vault AWS auth backend role to use when retrieving a token (if applicable)
+        :return: string, a vault token
+        """
+        vault_token = os.environ.get('VAULT_TOKEN')
+        if vault_token is None and ec2_role is not None:
+            auth_ec2_resp = auth_ec2(
+                vault_client=vault_client,
+                role=ec2_role,
+            )
+            logger.debug('auth_ec2_resp:\n{}'.format(auth_ec2_resp))
+            vault_token = auth_ec2_resp['auth']['client_token']
+        return vault_token
 
-    def get_vault_client(vault_url=VAULT_URL, certs=VAULT_CERTS, verify_certs=True, ec2_role=None):
+
+    def get_vault_client(vault_url=VAULT_URL, certs=None, verify_certs=True, ec2_role=None):
         """
         Instantiates a hvac / vault client.
         :param vault_url: string, protocol + address + port for the vault service
@@ -276,19 +312,11 @@ Authentication using EC2 instance role credentials and the EC2 metadata service
         :return: hvac.Client
         """
         logger.debug('Retrieving a vault (hvac) client...')
-        if verify_certs:
-            # We use a self-signed certificate for the vault service itself, so we need to include our
-            # local ca bundle here for the underlying requests module.
-            os.environ['REQUESTS_CA_BUNDLE'] = '/etc/ssl/certs/ca-certificates.crt'
-            vault_client = hvac.Client(
-                url=vault_url,
-                cert=certs,
-            )
-        else:
-            vault_client = hvac.Client(
-                url=vault_url,
-                verify=False,
-            )
+        vault_client = hvac.Client(
+            url=vault_url,
+            cert=certs,
+            verify=verify_certs,
+        )
 
         vault_client.token = load_vault_token(vault_client, ec2_role=ec2_role)
 
@@ -298,7 +326,14 @@ Authentication using EC2 instance role credentials and the EC2 metadata service
         return vault_client
 
 
-    authenticated_vault_client = get_vault_client()
+    vault_client = get_vault_client(ec2_role='some-role')
+
+    assert vault_client.is_authenticated()
+
+.. testcleanup:: aws_ec2
+
+    os.environ['VAULT_TOKEN'] = manager.root_token
+
 
 .. _hvac#251: https://github.com/hvac/hvac/issues/251
 .. _vault-ruby#161: https://github.com/hashicorp/vault-ruby/pull/161#issuecomment-355723269

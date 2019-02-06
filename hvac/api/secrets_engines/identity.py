@@ -63,7 +63,7 @@ class Identity(VaultApiBase):
             json=params,
         )
         if response.status_code == 204:
-            return response
+            return self.read_entity_by_name(name=name)
         else:
             return response.json()
 
@@ -110,7 +110,7 @@ class Identity(VaultApiBase):
             json=params,
         )
         if response.status_code == 204:
-            return response
+            return self.read_entity_by_name(name=name)
         else:
             return response.json()
 
@@ -884,14 +884,14 @@ class Identity(VaultApiBase):
         )
         return response.json()
 
-    def update_group_alias(self, entity_id, name, mount_accessor="", canonical_id="", mount_point=DEFAULT_MOUNT_POINT):
+    def update_group_alias(self, alias_id, name, mount_accessor="", canonical_id="", mount_point=DEFAULT_MOUNT_POINT):
         """Update an existing group alias.
 
         Supported methods:
             POST: /{mount_point}/group-alias/id/{id}. Produces: 200 application/json
 
-        :param entity_id: ID of the group alias.
-        :type entity_id: str | unicode
+        :param alias_id: ID of the group alias.
+        :type alias_id: str | unicode
         :param name: Name of the group alias.
         :type name: str | unicode
         :param mount_accessor: Mount accessor to which this alias belongs
@@ -911,7 +911,7 @@ class Identity(VaultApiBase):
         }
         api_path = '/v1/{mount_point}/group-alias/id/{id}'.format(
             mount_point=mount_point,
-            id=entity_id,
+            id=alias_id,
         )
         return self._adapter.post(
             url=api_path,
@@ -940,14 +940,14 @@ class Identity(VaultApiBase):
         )
         return response.json()
 
-    def delete_group_alias(self, entity_id, mount_point=DEFAULT_MOUNT_POINT):
+    def delete_group_alias(self, alias_id, mount_point=DEFAULT_MOUNT_POINT):
         """Delete a group alias.
 
         Supported methods:
             DELETE: /{mount_point}/group-alias/id/{id}. Produces: 204 (empty body)
 
-        :param entity_id: ID of the group alias.
-        :type entity_id: str | unicode
+        :param alias_id: ID of the group alias.
+        :type alias_id: str | unicode
         :param mount_point: The "path" the method/backend was mounted on.
         :type mount_point: str | unicode
         :return: The response of the request.
@@ -955,7 +955,7 @@ class Identity(VaultApiBase):
         """
         api_path = '/v1/{mount_point}/group-alias/id/{id}'.format(
             mount_point=mount_point,
-            id=entity_id,
+            id=alias_id,
         )
         return self._adapter.delete(
             url=api_path,

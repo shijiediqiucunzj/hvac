@@ -1,6 +1,10 @@
 Policy
 ======
 
+.. contents::
+   :local:
+   :depth: 1
+
 Manipulate policies
 -------------------
 

@@ -1,6 +1,10 @@
 Wrapping
 ========
 
+.. contents::
+   :local:
+   :depth: 1
+
 
 Unwrap
 ------

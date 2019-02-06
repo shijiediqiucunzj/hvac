@@ -3,101 +3,160 @@
 Azure
 =====
 
+.. contents::
+   :local:
+   :depth: 1
+
 .. note::
     Every method under the :py:attr:`Client class's azure attribute<hvac.v1.Client.azure.auth>` includes a `mount_point` parameter that can be used to address the Azure auth method under a custom mount path. E.g., If enabling the Azure auth method using Vault's CLI commands via `vault auth enable -path=my-azure azure`", the `mount_point` parameter in :py:meth:`hvac.api.auth_methods.Azure` methods would be set to "my-azure".
 
 Enabling the Auth Method
 ------------------------
 
-:py:meth:`hvac.v1.Client.enable_auth_backend`
+Examples
+````````
 
-.. code:: python
+.. testcode:: azure
 
     import hvac
-    client = hvac.Client()
+
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     azure_auth_path = 'company-azure'
-    description = 'Auth method for use by team members in our company's Azure organization'
+    description = "Auth method for use by team members in our company's Azure organization"
 
-    if '%s/' % azure_auth_path not in vault_client.list_auth_backends():
+    if '%s/' % azure_auth_path not in client.sys.list_auth_methods()['data']:
         print('Enabling the azure auth backend at mount_point: {path}'.format(
             path=azure_auth_path,
         ))
-        client.enable_auth_backend(
-            backend_type='azure',
+        client.sys.enable_auth_method(
+            method_type='azure',
             description=description,
-            mount_point=azure_auth_path,
+            path=azure_auth_path,
         )
 
+Would produce the following output:
+
+.. testoutput:: azure
+
+    Enabling the azure auth backend at mount_point: company-azure
 
 Configure
 ---------
 
-:py:meth:`hvac.api.auth_methods.Azure.configure`
+.. automethod:: hvac.api.auth_methods.Azure.configure
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: azure
 
     import os
     import hvac
-    client = hvac.Client()
+
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.auth.azure.configure(
-        tenant_id='my-tenant-id'
+        tenant_id='my-tenant-id',
         resource='my-resource',
-        client_id=os.environ.get('AZURE_CLIENT_ID'),
-        client_secret=os.environ.get('AZURE_CLIENT_SECRET'),
+        client_id=os.getenv('AZURE_CLIENT_ID'),
+        client_secret=os.getenv('AZURE_CLIENT_SECRET'),
     )
 
 Read Config
 -----------
 
-:py:meth:`hvac.api.auth_methods.Azure.read_config`
+.. automethod:: hvac.api.auth_methods.Azure.read_config
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testsetup:: azure
+
+    client = hvac.Client(url='https://127.0.0.1:8200')
+    client.sys.enable_auth_method(
+        method_type='azure',
+    )
+    client.auth.azure.configure(
+        tenant_id='my-tenant-id',
+        resource='my-resource',
+        client_id=os.getenv('AZURE_CLIENT_ID'),
+        client_secret=os.getenv('AZURE_CLIENT_SECRET'),
+    )
+
+.. testcode:: azure
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     read_config = client.auth.azure.read_config()
-    print('The configured tenant_id is: {id}'.format(id=read_config['tenant_id'))
+    print('The configured tenant_id is: {id}'.format(id=read_config['tenant_id']))
+
+
+.. testoutput:: azure
+
+    The configured tenant_id is: my-tenant-id
 
 Delete Config
 -------------
 
-:py:meth:`hvac.api.auth_methods.Azure.delete_config`
+.. automethod:: hvac.api.auth_methods.Azure.delete_config
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: azure
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.auth.azure.delete_config()
 
 Create a Role
 -------------
 
-:py:meth:`hvac.api.auth_methods.Azure.create_role`
+.. automethod:: hvac.api.auth_methods.Azure.create_role
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: azure
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.auth.azure.create_role(
         name='my-role',
-        policies=policies,
-        bound_service_principal_ids=bound_service_principal_ids,
+        policies=['some_policy'],
+        bound_service_principal_ids=['some_principle_id'],
     )
 
 Read A Role
 -----------
 
-:py:meth:`hvac.api.auth_methods.Azure.read_role`
+.. automethod:: hvac.api.auth_methods.Azure.read_role
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testsetup:: azure
+
+    client = hvac.Client(url='https://127.0.0.1:8200')
+    client.auth.azure.create_role(
+        name='my-role',
+        policies=['default'],
+        bound_service_principal_ids=['some_principle_id'],
+    )
+
+.. testcode:: azure
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     role_name = 'my-role'
     read_role_response = client.auth.azure.read_role(
@@ -108,31 +167,62 @@ Read A Role
         policies=','.join(read_role_response['policies']),
     ))
 
+.. testoutput:: azure
+
+    Policies for role "my-role": some_policy
+
 List Roles
 ----------
 
-:py:meth:`hvac.api.auth_methods.Azure.list_roles`
+.. automethod:: hvac.api.auth_methods.Azure.list_roles
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testsetup:: azure
+
+    client = hvac.Client(url='https://127.0.0.1:8200')
+    client.auth.azure.create_role(
+        name='my-role',
+        policies=['default'],
+        bound_service_principal_ids=['some_principle_id'],
+    )
+
+.. testcode:: azure
 
     import hvac
-    client = hvac.Client()
+
+    client = hvac.Client(url='https://127.0.0.1:8200')
+    client.auth.azure.create_role(
+        name='my-role',
+        policies=['default'],
+        bound_service_principal_ids=['some_principle_id'],
+    )
 
     roles = client.auth.azure.list_roles()
     print('The following Azure auth roles are configured: {roles}'.format(
         roles=','.join(roles['keys']),
     ))
 
+.. testoutput:: azure
+
+    The following Azure auth roles are configured: my-role
+
 
 Delete A Role
 -------------
 
-:py:meth:`hvac.api.auth_methods.Azure.delete_role`
+.. automethod:: hvac.api.auth_methods.Azure.delete_role
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: azure
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.auth.azure.delete_role(
         name='my-role',
@@ -141,15 +231,19 @@ Delete A Role
 Login
 -----
 
-:py:meth:`hvac.api.auth_methods.Azure.login`
+.. automethod:: hvac.api.auth_methods.Azure.login
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: azure
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
-    client.azure.login(
+    client.auth.azure.login(
         role=role_name,
         jwt='Some MST JWT...',
     )
-    client.is_authenticated  # ==> returns True
+    assert client.is_authenticated

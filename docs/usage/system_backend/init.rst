@@ -1,6 +1,10 @@
 Init
 ====
 
+.. contents::
+   :local:
+   :depth: 1
+
 
 .. code:: python
 

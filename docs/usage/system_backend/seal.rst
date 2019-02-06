@@ -1,6 +1,10 @@
 Seal
 ====
 
+.. contents::
+   :local:
+   :depth: 1
+
 
 Seal Status
 -----------

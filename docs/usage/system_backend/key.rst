@@ -1,6 +1,10 @@
 Key
 ===
 
+.. contents::
+   :local:
+   :depth: 1
+
 Read Root Generation Progress
 -----------------------------
 

@@ -1,9 +1,11 @@
 Identity
 ========
 
-.. versionadded:: Vault 0.9.0
-
 .. contents::
+   :local:
+   :depth: 1
+
+.. versionadded:: Vault 0.9.0
 
 Entity
 ------
@@ -11,52 +13,129 @@ Entity
 Create Or Update Entity
 ```````````````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.create_or_update_entity`
+.. automethod:: hvac.api.secrets_engines.Identity.create_or_update_entity
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+Creating an entity:
 
-	create_response = client.secrets.identity.create_or_update_entity(
-			name='hvac-entity',
-			metadata=dict(extra_datas='yup'),
-		)
-	entity_id = create_response['data']['id']
-	print('Entity ID for "hvac-entity" is: {id}'.format(id=entity_id))
+.. testcode:: identity-create-or-update-entity
 
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    create_response = client.secrets.identity.create_or_update_entity(
+        name='hvac-entity',
+        metadata=dict(extra_datas='yup'),
+    )
+    entity_id = create_response['data']['id']
+    print('Entity ID for "hvac-entity" is: {id}'.format(id=entity_id))
+
+Example output:
+
+.. testoutput:: identity-create-or-update-entity
+
+    Entity ID for "hvac-entity" is: ...
+
+
+Updating an entity:
+
+.. testcode:: identity-create-or-update-entity
+
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    update_response = client.secrets.identity.create_or_update_entity(
+        name='hvac-entity-new-name',
+        entity_id=entity_id,
+    )
+    entity_name = update_response['data']['name']
+    print('Name for entity ID {id} updated to: {name}'.format(id=entity_id, name=entity_name))
+
+Example output:
+
+.. testoutput:: identity-create-or-update-entity
+
+    Name for entity ID ... updated to: hvac-entity-new-name
+
+.. testcleanup:: identity-create-or-update-entity
+
+    client.secrets.identity.delete_entity(
+        entity_id=entity_id,
+    )
 
 Create Or Update Entity By Name
 ```````````````````````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.create_or_update_entity_by_name`
+.. automethod:: hvac.api.secrets_engines.Identity.create_or_update_entity_by_name
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-create-or-update-entity-by-name
 
-	client.secrets.identity.create_or_update_entity_by_name(
-		name='hvac-entity',
-		metadata=dict(new_datas='uhuh'),
-	)
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
+    create_response = client.secrets.identity.create_or_update_entity_by_name(
+        name='hvac-entity',
+        metadata=dict(new_datas='uhuh'),
+    )
+    entity_id = create_response['data']['id']
+    print('Entity ID for "hvac-entity" is: {id}'.format(id=entity_id))
+
+Example output:
+
+.. testoutput:: identity-create-or-update-entity-by-name
+
+    Entity ID for "hvac-entity" is: ...
+
+.. testcleanup:: identity-create-or-update-entity-by-name
+
+    client.secrets.identity.delete_entity(
+        entity_id=entity_id,
+    )
 
 Read Entity
 ```````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.read_entity`
+.. automethod:: hvac.api.secrets_engines.Identity.read_entity
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testsetup:: identity-read-entity
 
-	read_response = client.secrets.identity.read_entity(
-		entity_id=entity_id,
-	)
-	name = read_response['data']['name']
-	print('Name for entity ID {id} is: {name}'.format(id=entity_id, name=name))
+    client.secrets.identity.create_or_update_entity_by_name(
+        name='hvac-entity',
+        metadata=dict(new_datas='uhuh'),
+    )
+
+    read_response = client.secrets.identity.read_entity_by_name(
+        name='hvac-entity',
+    )
+    entity_id = read_response['data']['id']
+
+.. testcode:: identity-read-entity
+
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    read_response = client.secrets.identity.read_entity(
+        entity_id=entity_id,
+    )
+    name = read_response['data']['name']
+    print('Name for entity ID {id} is: {name}'.format(id=entity_id, name=name))
+
+Example output:
+
+.. testoutput:: identity-read-entity
+
+   Name for entity ID ... is: hvac-entity
 
 
 Read Entity By Name
@@ -64,49 +143,74 @@ Read Entity By Name
 
 .. versionadded:: Vault 0.11.2
 
-:py:meth:`hvac.api.secrets_engines.Identity.read_entity_by_name`
+.. automethod:: hvac.api.secrets_engines.Identity.read_entity_by_name
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-read-entity
 
-	read_response = client.secrets.identity.read_entity_by_name(
-		name='hvac-entity',
-	)
-	entity_id = read_response['data']['id']
-	print('Entity ID for "hvac-entity" is: {id}'.format(id=entity_id))
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    read_response = client.secrets.identity.read_entity_by_name(
+        name='hvac-entity',
+    )
+    entity_id = read_response['data']['id']
+    print('Entity ID for "hvac-entity" is: {id}'.format(id=entity_id))
+
+Example output:
+
+.. testoutput:: identity-read-entity
+
+    Entity ID for "hvac-entity" is: ...
 
 
 Update Entity
 `````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.update_entity`
+.. automethod:: hvac.api.secrets_engines.Identity.update_entity
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testsetup:: identity-update-entity
 
-	client.secrets.identity.update_entity(
-		entity_id=entity_id,
-		metadata=dict(new_metadata='yup'),
-	)
+    create_response = client.secrets.identity.create_or_update_entity(
+        name='hvac-entity',
+        metadata=dict(extra_datas='yup'),
+    )
+    entity_id = create_response['data']['id']
 
+.. testcode:: identity-update-entity
+
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    client.secrets.identity.update_entity(
+        entity_id=entity_id,
+        metadata=dict(new_metadata='yup'),
+    )
 
 Delete Entity
 `````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.delete_entity`
+.. automethod:: hvac.api.secrets_engines.Identity.delete_entity
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity
 
-	client.secrets.identity.delete_entity(
-		entity_id=entity_id,
-	)
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    client.secrets.identity.delete_entity(
+        entity_id='some-entity-id',
+    )
 
 
 Delete Entity By Name
@@ -114,31 +218,51 @@ Delete Entity By Name
 
 .. versionadded:: Vault 0.11.2
 
-:py:meth:`hvac.api.secrets_engines.Identity.delete_entity_by_name`
+.. automethod:: hvac.api.secrets_engines.Identity.delete_entity_by_name
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity
 
-	client.secrets.identity.delete_entity_by_name(
-		name='hvac-entity',
-	)
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
+    client.secrets.identity.delete_entity_by_name(
+        name='hvac-entity',
+    )
 
 List Entities
 `````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.list_entities`
+.. automethod:: hvac.api.secrets_engines.Identity.list_entities
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testsetup:: identity-read-entity
 
-	list_response = client.secrets.identity.list_entities()
-	entity_keys = list_response['data']['keys']
-	print('The following entity IDs are currently configured: {keys}'.format(keys=entity_keys))
+    client.secrets.identity.create_or_update_entity_by_name(
+        name='hvac-entity',
+        metadata=dict(new_datas='uhuh'),
+    )
+
+.. testcode:: identity-read-entity
+
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    list_response = client.secrets.identity.list_entities()
+    entity_keys = list_response['data']['keys']
+    print('The following entity IDs are currently configured: {keys}'.format(keys=entity_keys))
+
+Example output:
+
+.. testoutput:: identity-read-entity
+
+    The following entity IDs are currently configured: ...
 
 
 List Entities By Name
@@ -146,32 +270,81 @@ List Entities By Name
 
 .. versionadded:: Vault 0.11.2
 
-:py:meth:`hvac.api.secrets_engines.Identity.list_entities_by_name`
+.. automethod:: hvac.api.secrets_engines.Identity.list_entities_by_name
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-read-entity
 
-	list_response = client.secrets.identity.list_entities_by_name()
-	entity_keys = list_response['data']['keys']
-	print('The following entity names are currently configured: {keys}'.format(keys=entity_keys))
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
+    list_response = client.secrets.identity.list_entities_by_name()
+    entity_keys = list_response['data']['keys']
+    print('The following entity names are currently configured: {keys}'.format(keys=', '.join(entity_keys)))
+
+Example output:
+
+.. testoutput:: identity-read-entity
+
+    The following entity names are currently configured: hvac-entity
 
 Merge Entities
 ``````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.merge_entities`
+.. automethod:: hvac.api.secrets_engines.Identity.merge_entities
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testsetup:: identity-merge-entities
 
-	client.secrets.identity.merge_entities(
-		from_entity_ids=from_entity_ids,
-		to_entity_id=to_entity_id,
-	)
+    client.secrets.identity.create_or_update_entity_by_name(
+        name='hvac-entity-old',
+        metadata=dict(new_datas='uhuh'),
+    )
+
+    read_response = client.secrets.identity.read_entity_by_name(
+        name='hvac-entity-old',
+    )
+    from_entity_ids = [read_response['data']['id']]
+
+    client.secrets.identity.create_or_update_entity_by_name(
+        name='hvac-entity',
+        metadata=dict(new_datas='uhuh'),
+    )
+
+    read_response = client.secrets.identity.read_entity_by_name(
+        name='hvac-entity',
+    )
+    to_entity_id = read_response['data']['id']
+
+.. testcode:: identity-merge-entities
+
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    list_response = client.secrets.identity.list_entities_by_name()
+    print('Pre-merge entities: {keys}'.format(keys=', '.join(sorted(list_response['data']['keys']))))
+
+    client.secrets.identity.merge_entities(
+        from_entity_ids=from_entity_ids,
+        to_entity_id=to_entity_id,
+    )
+
+    list_response = client.secrets.identity.list_entities_by_name()
+    entity_keys = list_response['data']['keys']
+    print('Post-merge entities: {keys}'.format(keys=', '.join(sorted(list_response['data']['keys']))))
+
+Example output:
+
+.. testoutput:: identity-merge-entities
+
+    Pre-merge entities: hvac-entity, hvac-entity-old
+    Post-merge entities: hvac-entity
 
 Entity Alias
 ------------
@@ -179,184 +352,248 @@ Entity Alias
 Create Or Update Entity Alias
 `````````````````````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.create_or_update_entity_alias`
+.. automethod:: hvac.api.secrets_engines.Identity.create_or_update_entity_alias
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testsetup:: identity-create-or-update-entity-alias
 
-	create_response = client.secrets.identity.create_or_update_entity_alias(
-		name='hvac-entity-alias',
-		canonical_id=entity_id,
-		mount_accessor='auth_approle_73c16de3',
-	)
-	alias_id = create_response['data']['id']
-	print('Alias ID for "hvac-entity-alias" is: {id}'.format(id=alias_id))
+    create_response = client.secrets.identity.create_or_update_entity(
+        name='hvac-entity',
+        metadata=dict(extra_datas='yup'),
+    )
+    entity_id = create_response['data']['id']
 
+    test_approle_path = 'identity-test-approle'
+    client.sys.enable_auth_method(
+        method_type='approle',
+        path=test_approle_path,
+    )
+    list_auth_response = client.sys.list_auth_methods()
+    hvac_approle_accessor = list_auth_response['data']['%s/' % test_approle_path]['accessor']
 
-Read Entity Alias
-`````````````````
+.. testcode:: identity-create-or-update-entity-alias
 
-:py:meth:`hvac.api.secrets_engines.Identity.read_entity_alias`
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
-.. code:: python
+    create_response = client.secrets.identity.create_or_update_entity_alias(
+        name='hvac-entity-alias',
+        canonical_id=entity_id,
+        mount_accessor=hvac_approle_accessor,
+    )
+    alias_id = create_response['data']['id']
+    print('Alias ID for "hvac-entity-alias" is: {id}'.format(id=alias_id))
 
-	import hvac
-	client = hvac.Client()
+Example output:
 
-	read_response = client.secrets.identity.read_entity_alias(
-		alias_id=alias_id,
-	)
-	name = read_response['data']['name']
-	print('Name for entity alias {id} is: {name}'.format(id=alias_id, name=name))
+.. testoutput:: identity-create-or-update-entity-alias
 
+    Alias ID for "hvac-entity-alias" is: ...
+
+.. testcleanup:: identity-create-or-update-entity-alias
+
+    client.secrets.identity.delete_entity_alias(
+        alias_id=alias_id,
+    )
+    client.sys.disable_auth_method(
+        path=test_approle_path,
+    )
 
 Update Entity Alias
 ```````````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.update_entity_alias`
+.. automethod:: hvac.api.secrets_engines.Identity.update_entity_alias
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testsetup:: identity-update-entity-alias
 
-	client.secrets.identity.update_entity_alias(
-		alias_id=alias_id,
-		name='new-alias-name',
-		canonical_id=entity_id,
-		mount_accessor='auth_approle_73c16de3',
-	)
+    create_response = client.secrets.identity.create_or_update_entity(
+        name='hvac-entity',
+        metadata=dict(extra_datas='yup'),
+    )
+    entity_id = create_response['data']['id']
+
+    test_approle_path = 'identity-test-approle'
+    client.sys.enable_auth_method(
+        method_type='approle',
+        path=test_approle_path,
+    )
+    list_auth_response = client.sys.list_auth_methods()
+    hvac_approle_accessor = list_auth_response['data']['%s/' % test_approle_path]['accessor']
+
+    create_response = client.secrets.identity.create_or_update_entity_alias(
+        name='hvac-entity-alias',
+        canonical_id=entity_id,
+        mount_accessor=hvac_approle_accessor,
+    )
+    alias_id = create_response['data']['id']
+
+.. testcode:: identity-update-entity-alias
+
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    client.secrets.identity.update_entity_alias(
+        alias_id=alias_id,
+        name='new-alias-name',
+        canonical_id=entity_id,
+        mount_accessor=hvac_approle_accessor,
+    )
+
+Read Entity Alias
+`````````````````
+
+.. automethod:: hvac.api.secrets_engines.Identity.read_entity_alias
+   :noindex:
+
+Examples
+````````
+
+.. testsetup:: identity-read-entity-alias
+
+    create_response = client.secrets.identity.create_or_update_entity(
+        name='hvac-entity',
+        metadata=dict(extra_datas='yup'),
+    )
+    entity_id = create_response['data']['id']
+
+    test_approle_path = 'identity-test-approle'
+    client.sys.enable_auth_method(
+        method_type='approle',
+        path=test_approle_path,
+    )
+    list_auth_response = client.sys.list_auth_methods()
+    hvac_approle_accessor = list_auth_response['data']['%s/' % test_approle_path]['accessor']
+
+    create_response = client.secrets.identity.create_or_update_entity_alias(
+        name='hvac-entity-alias',
+        canonical_id=entity_id,
+        mount_accessor=hvac_approle_accessor,
+    )
+    alias_id = create_response['data']['id']
+
+.. testcode:: identity-read-entity-alias
+
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    read_response = client.secrets.identity.read_entity_alias(
+        alias_id=alias_id,
+    )
+    name = read_response['data']['name']
+    print('Name for entity alias {id} is: {name}'.format(id=alias_id, name=name))
+
+Example output:
+
+.. testoutput:: identity-read-entity-alias
+
+    Name for entity alias ... is: hvac-entity-alias
 
 List Entity Aliases
 ```````````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.list_entity_aliases`
+.. automethod:: hvac.api.secrets_engines.Identity.list_entity_aliases
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-read-entity-alias
 
-	list_response = client.secrets.identity.list_entity_aliases()
-	alias_keys = list_response['data']['keys']
-	print('The following entity alias IDs are currently configured: {keys}'.format(keys=alias_keys))
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
+    list_response = client.secrets.identity.list_entity_aliases()
+    alias_keys = list_response['data']['keys']
+    print('The following entity alias IDs are currently configured: {keys}'.format(keys=', '.join(alias_keys)))
+
+Example output:
+
+.. testoutput:: identity-read-entity-alias
+
+    The following entity alias IDs are currently configured: ...
 
 Delete Entity Alias
 ```````````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.delete_entity_alias`
+.. automethod:: hvac.api.secrets_engines.Identity.delete_entity_alias
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity
 
-	client.secrets.identity.delete_entity_alias(
-		alias_id=alias_id,
-	)
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    client.secrets.identity.delete_entity_alias(
+        alias_id='some-alias-id',
+    )
 
 Group
 -----
 
+.. testsetup:: identity-groups
+
+    create_response = client.secrets.identity.create_or_update_group(
+        name='hvac-group',
+        metadata=dict(extra_datas='we gots em'),
+    )
+    group_id = create_response['data']['id']
+
 Create Or Update Group
 ``````````````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.create_or_update_group`
+.. automethod:: hvac.api.secrets_engines.Identity.create_or_update_group
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-create-or-update-group
 
-	create_response = client.secrets.identity.create_or_update_group(
-		name='hvac-group',
-		metadata=dict(extra_datas='we gots em'),
-	)
-	group_id = create_response['data']['id']
-	print('Group ID for "hvac-group" is: {id}'.format(id=group_id))
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
+    create_response = client.secrets.identity.create_or_update_group(
+        name='hvac-group',
+        metadata=dict(extra_datas='we gots em'),
+    )
+    group_id = create_response['data']['id']
+    print('Group ID for "hvac-group" is: {id}'.format(id=group_id))
 
-Read Group
-``````````
+Example output:
 
-:py:meth:`hvac.api.secrets_engines.Identity.read_group`
+.. testoutput:: identity-create-or-update-group
 
-.. code:: python
-
-	import hvac
-	client = hvac.Client()
-
-	read_response = client.secrets.identity.read_group(
-		group_id=group_id,
-	)
-	name = read_response['data']['name']
-	print('Name for group ID {id} is: {name}'.format(id=group_id, name=name))
-
+    Group ID for "hvac-group" is: ...
 
 Update Group
 ````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.update_group`
+.. automethod:: hvac.api.secrets_engines.Identity.update_group
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-create-or-update-group
 
-	client.secrets.identity.update_group(
-		group_id=group_id,
-		metadata=dict(new_metadata='yup'),
-	)
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
-
-Delete Group
-````````````
-
-:py:meth:`hvac.api.secrets_engines.Identity.delete_group`
-
-.. code:: python
-
-	import hvac
-	client = hvac.Client()
-
-	client.secrets.identity.delete_group(
-		group_id=group_id,
-	)
-
-
-List Groups
-```````````
-
-:py:meth:`hvac.api.secrets_engines.Identity.list_groups`
-
-.. code:: python
-
-	import hvac
-	client = hvac.Client()
-
-	list_response = client.secrets.identity.list_groups()
-	group_keys = list_entities_response['data']['keys']
-	print('The following group IDs are currently configured: {keys}'.format(keys=group_keys))
-
-
-List Groups By Name
-```````````````````
-
-.. versionadded:: Vault 0.11.2
-
-:py:meth:`hvac.api.secrets_engines.Identity.list_groups_by_name`
-
-.. code:: python
-
-	import hvac
-	client = hvac.Client()
-
-	list_response = client.secrets.identity.list_entities_by_name()
-	group_keys = list_response['data']['keys']
-	print('The following group names are currently configured: {keys}'.format(keys=group_keys))
+    client.secrets.identity.update_group(
+        name='hvac-group',
+        group_id=group_id,
+        metadata=dict(new_metadata='yup'),
+    )
 
 
 Create Or Update Group By Name
@@ -364,17 +601,46 @@ Create Or Update Group By Name
 
 .. versionadded:: Vault 0.11.2
 
-:py:meth:`hvac.api.secrets_engines.Identity.create_or_update_group_by_name`
+.. automethod:: hvac.api.secrets_engines.Identity.create_or_update_group_by_name
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-create-or-update-group
 
-	client.secrets.identity.create_or_update_group_by_name(
-		name='hvac-group',
-		metadata=dict(new_datas='uhuh'),
-	)
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    client.secrets.identity.create_or_update_group_by_name(
+        name='hvac-group',
+        metadata=dict(new_datas='uhuh'),
+    )
+
+
+Read Group
+``````````
+
+.. automethod:: hvac.api.secrets_engines.Identity.read_group
+   :noindex:
+
+Examples
+````````
+
+.. testcode:: identity-groups
+
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    read_response = client.secrets.identity.read_group(
+        group_id=group_id,
+    )
+    name = read_response['data']['name']
+    print('Name for group ID {id} is: {name}'.format(id=group_id, name=name))
+
+.. testoutput:: identity-groups
+
+    Name for group ID ... is: hvac-group
 
 
 Read Group By Name
@@ -382,18 +648,98 @@ Read Group By Name
 
 .. versionadded:: Vault 0.11.2
 
-:py:meth:`hvac.api.secrets_engines.Identity.read_group_by_name`
+.. automethod:: hvac.api.secrets_engines.Identity.read_group_by_name
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-groups
 
-	read_response = client.secrets.identity.read_group_by_name(
-		name='hvac-group',
-	)
-	group_id = read_response['data']['id']
-	print('Group ID for "hvac-group" is: {id}'.format(id=group_id))
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    read_response = client.secrets.identity.read_group_by_name(
+        name='hvac-group',
+    )
+    group_id = read_response['data']['id']
+    print('Group ID for "hvac-group" is: {id}'.format(id=group_id))
+
+Example output:
+
+.. testoutput:: identity-groups
+
+    Group ID for "hvac-group" is: ...
+
+List Groups
+```````````
+
+.. automethod:: hvac.api.secrets_engines.Identity.list_groups
+   :noindex:
+
+Examples
+````````
+
+.. testcode:: identity-groups
+
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    list_response = client.secrets.identity.list_groups()
+    group_keys = list_response['data']['keys']
+    print('The following group IDs are currently configured: {keys}'.format(keys=', '.join(group_keys)))
+
+Example output:
+
+.. testoutput:: identity-groups
+
+    The following group IDs are currently configured: ...
+
+
+List Groups By Name
+```````````````````
+
+.. versionadded:: Vault 0.11.2
+
+.. automethod:: hvac.api.secrets_engines.Identity.list_entities_by_name
+   :noindex:
+
+Examples
+````````
+
+.. testcode:: identity-groups
+
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    list_response = client.secrets.identity.list_groups_by_name()
+    group_keys = list_response['data']['keys']
+    print('The following group names are currently configured: {keys}'.format(keys=', '.join(group_keys)))
+
+Example output:
+
+.. testoutput:: identity-groups
+
+    The following group names are currently configured: hvac-group
+
+
+Delete Group
+````````````
+
+.. automethod:: hvac.api.secrets_engines.Identity.delete_group
+   :noindex:
+
+Examples
+````````
+
+.. testcode:: identity
+
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    client.secrets.identity.delete_group(
+        group_id='some-group-id',
+    )
 
 
 Delete Group By Name
@@ -401,137 +747,226 @@ Delete Group By Name
 
 .. versionadded:: Vault 0.11.2
 
-:py:meth:`hvac.api.secrets_engines.Identity.delete_group_by_name`
+.. automethod:: hvac.api.secrets_engines.Identity.delete_group_by_name
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity
 
-	client.secrets.identity.delete_group_by_name(
-		name='hvac-group',
-	)
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    client.secrets.identity.delete_group_by_name(
+        name='hvac-group',
+    )
 
 Group Alias
 -----------
 
+.. testsetup:: identity-group-alias
+
+    create_response = client.secrets.identity.create_or_update_group(
+        name='hvac-group',
+        metadata=dict(extra_datas='we gots em'),
+        group_type='external',
+    )
+    group_id = create_response['data']['id']
+
+    test_approle_path = 'identity-test-approle'
+    client.sys.enable_auth_method(
+        method_type='approle',
+        path=test_approle_path,
+    )
+    list_auth_response = client.sys.list_auth_methods()
+    hvac_approle_accessor = list_auth_response['data']['%s/' % test_approle_path]['accessor']
+
 Create Or Update Group Alias
 ````````````````````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.create_or_update_group_alias`
+.. automethod:: hvac.api.secrets_engines.Identity.create_or_update_group_alias
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-group-alias
 
-	create_response = client.secrets.identity.create_or_update_group_alias(
-			name='hvac-group-alias',
-			canonical_id=group_id,
-			mount_accessor='auth_approle_73c16de3',
-		)
-	alias_id = create_response['data']['id']
-	print('Group alias ID for "hvac-group_alias" is: {id}'.format(id=alias_id))
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    create_response = client.secrets.identity.create_or_update_group_alias(
+            name='hvac-group-alias',
+            canonical_id=group_id,
+            mount_accessor=hvac_approle_accessor,
+        )
+    alias_id = create_response['data']['id']
+    print('Group alias ID for "hvac-group_alias" is: {id}'.format(id=alias_id))
+
+Example output:
+
+.. testoutput:: identity-group-alias
+
+    Group alias ID for "hvac-group_alias" is: ...
 
 
 Update Group Alias
 ``````````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.update_group_alias`
+.. automethod:: hvac.api.secrets_engines.Identity.update_group_alias
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-group-alias
 
-	client.secrets.identity.update_group_alias(
-		alias_id=alias_id,
-		name='new-alias-name',
-		canonical_id=group_id,
-		mount_accessor='auth_approle_73c16de3',
-	)
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    client.secrets.identity.update_group_alias(
+        alias_id=alias_id,
+        name='hvac-group-alias',
+        canonical_id=group_id,
+        mount_accessor=hvac_approle_accessor,
+    )
 
 
 Read Group Alias
 ````````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.read_group_alias`
+.. automethod:: hvac.api.secrets_engines.Identity.read_group_alias
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-group-alias
 
-	read_response = client.secrets.identity.read_group_alias(
-		alias_id=alias_id,
-	)
-	name = read_response['data']['name']
-	print('Name for group alias {id} is: {name}'.format(id=alias_id, name=name))
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
+    read_response = client.secrets.identity.read_group_alias(
+        alias_id=alias_id,
+    )
+    name = read_response['data']['name']
+    print('Name for group alias {id} is: {name}'.format(id=alias_id, name=name))
 
-Delete Group Alias
-``````````````````
+Example output:
 
-:py:meth:`hvac.api.secrets_engines.Identity.delete_group_alias`
+.. testoutput:: identity-group-alias
 
-.. code:: python
-
-	import hvac
-	client = hvac.Client()
-
-	client.secrets.identity.delete_group_alias(
-		alias_id=alias_id,
-	)
+    Name for group alias ... is: hvac-group-alias
 
 
 List Group Aliases
 ``````````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.list_group_aliases`
+.. automethod:: hvac.api.secrets_engines.Identity.list_group_aliases
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-group-alias
 
-	list_response = client.secrets.identity.list_group_aliases()
-	alias_keys = list_response['data']['keys']
-	print('The following group alias IDs are currently configured: {keys}'.format(keys=alias_keys))
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    list_response = client.secrets.identity.list_group_aliases()
+    alias_keys = list_response['data']['keys']
+    print('The following group alias IDs are currently configured: {keys}'.format(keys=', '.join(alias_keys)))
+
+Example output:
+
+.. testoutput:: identity-group-alias
+
+    The following group alias IDs are currently configured: ...
+
+
+Delete Group Alias
+``````````````````
+
+.. automethod:: hvac.api.secrets_engines.Identity.delete_group_alias
+   :noindex:
+
+Examples
+````````
+
+.. testcode:: identity
+
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    client.secrets.identity.delete_group_alias(
+        alias_id='some-alias-id',
+    )
 
 Lookup
 ------
 
+.. testsetup:: identity-lookup
+
+    client.secrets.identity.create_or_update_entity_by_name(
+        name='hvac-entity',
+        metadata=dict(new_datas='uhuh'),
+    )
+
+    client.secrets.identity.create_or_update_group(
+        name='hvac-group',
+        metadata=dict(extra_datas='we gots em'),
+    )
+
 Lookup Entity
 `````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.lookup_entity`
+.. automethod:: hvac.api.secrets_engines.Identity.lookup_entity
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-lookup
 
-	lookup_response = client.secrets.identity.lookup_entity(
-		name='hvac-entity',
-	)
-	entity_id = lookup_response['data']['id']
-	print('Entity ID for "hvac-entity" is: {id}'.format(id=entity_id))
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    lookup_response = client.secrets.identity.lookup_entity(
+        name='hvac-entity',
+    )
+    entity_id = lookup_response['data']['id']
+    print('Entity ID for "hvac-entity" is: {id}'.format(id=entity_id))
+
+Example output:
+
+.. testoutput:: identity-lookup
+
+    Entity ID for "hvac-entity" is: ...
 
 
 Lookup Group
 ````````````
 
-:py:meth:`hvac.api.secrets_engines.Identity.lookup_group`
+.. automethod:: hvac.api.secrets_engines.Identity.lookup_group
+   :noindex:
 
-.. code:: python
+Examples
+````````
 
-	import hvac
-	client = hvac.Client()
+.. testcode:: identity-lookup
 
-	lookup_response = client.secrets.identity.lookup_group(
-		name='hvac-group',
-	)
-	group_id = lookup_response['data']['id']
-	print('Group ID for "hvac-entity" is: {id}'.format(id=group_id))
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
+    lookup_response = client.secrets.identity.lookup_group(
+        name='hvac-group',
+    )
+    group_id = lookup_response['data']['id']
+    print('Group ID for "hvac-entity" is: {id}'.format(id=group_id))
 
+Example output:
+
+.. testoutput:: identity-lookup
+
+    Group ID for "hvac-entity" is: ...

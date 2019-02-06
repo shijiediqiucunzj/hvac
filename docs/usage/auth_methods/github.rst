@@ -1,41 +1,30 @@
 GitHub
 ======
 
-.. note::
-    Every method under the :py:attr:`Client class's github attribute<hvac.v1.Client.github>` includes a `mount_point` parameter that can be used to address the Github auth method under a custom mount path. E.g., If enabling the Github auth method using Vault's CLI commands via `vault auth enable -path=my-github github`", the `mount_point` parameter in :py:meth:`hvac.api.auth_methods.Github` methods would be set to "my-github".
-
-Enabling the Auth Method
-------------------------
-
-:py:meth:`hvac.v1.Client.enable_auth_backend`
-
-.. code:: python
-
-    import hvac
-    client = hvac.Client()
-
-    github_auth_path = 'company-github'
-    description = 'Auth method for use by team members in our company's Github organization'
-
-    if '%s/' % github_auth_path not in vault_client.list_auth_backends():
-        print('Enabling the github auth backend at mount_point: {path}'.format(
-            path=github_auth_path,
-        ))
-        client.enable_auth_backend(
-            backend_type='github',
-            description=description,
-            mount_point=github_auth_path,
-        )
+.. contents::
+   :local:
+   :depth: 1
 
 Configure Connection Parameters
 -------------------------------
 
-:py:meth:`hvac.api.auth_methods.Github.configure`
+.. automethod:: hvac.api.auth_methods.Github.configure
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testsetup:: github
+
+    client = hvac.Client(url='https://127.0.0.1:8200')
+    client.sys.enable_auth_method(
+        method_type='github'
+    )
+
+.. testcode:: github
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.auth.github.configure(
         organization='our-lovely-company',
@@ -45,28 +34,42 @@ Configure Connection Parameters
 Reading Configuration
 ---------------------
 
-:py:meth:`hvac.api.auth_methods.Github.read_configuration`
+.. automethod:: hvac.api.auth_methods.Github.read_configuration
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: github
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     github_config = client.auth.github.read_configuration()
-    print('The Github auth method is configured with a ttl of: {ttl}'.format(
-        ttl=github_config['data']['ttl']
-    )
+    print('The Github auth method is configured with a max_ttl of: {max_ttl}'.format(
+        max_ttl=github_config['data']['max_ttl']
+    ))
+
+Example output:
+
+.. testoutput:: github
+
+    The Github auth method is configured with a max_ttl of: 172800
 
 
 Mapping Teams to Policies
 -------------------------
 
-:py:meth:`hvac.api.auth_methods.Github.map_team`
+.. automethod:: hvac.api.auth_methods.Github.map_team
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: github
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     teams = [
         dict(name='some-dev-team', policies=['dev-team']),
@@ -81,32 +84,46 @@ Mapping Teams to Policies
 Reading Team Mappings
 ---------------------
 
-:py:meth:`hvac.api.auth_methods.Github.read_team_mapping`
+.. automethod:: hvac.api.auth_methods.Github.read_team_mapping
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: github
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
-    team_name = 'my-super-cool-team'
-    github_config = client.auth.github.read_team_mapping(
+    team_name = 'admin-team'
+    read_team_response = client.auth.github.read_team_mapping(
         team_name=team_name,
     )
     print('The Github team {team} is mapped to the following policies: {policies}'.format(
         team=team_name,
-        policies=github_config['data']['value'],
-    )
+        policies=read_team_response['data']['value'],
+    ))
+
+Example output:
+
+.. testoutput:: github
+
+    The Github team admin-team is mapped to the following policies: administrator
 
 
 Mapping Users to Policies
 -------------------------
 
-:py:meth:`hvac.api.auth_methods.Github.map_user`
+.. automethod:: hvac.api.auth_methods.Github.map_user
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: github
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     users = [
         dict(name='some-dev-user', policies=['dev-team']),
@@ -121,33 +138,47 @@ Mapping Users to Policies
 Reading User Mappings
 ---------------------
 
-:py:meth:`hvac.api.auth_methods.Github.read_user_mapping`
+.. automethod:: hvac.api.auth_methods.Github.read_user_mapping
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: github
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     user_name = 'some-dev-user'
-    github_config = client.auth.github.read_user_mapping(
+    read_user_response = client.auth.github.read_user_mapping(
         user_name=user_name,
     )
     print('The Github user "{user}" is mapped to the following policies: {policies}'.format(
         user=user_name,
-        policies=github_config['data']['value'],
-    )
+        policies=read_user_response['data']['value'],
+    ))
+
+Example output:
+
+.. testoutput:: github
+
+    The Github user "some-dev-user" is mapped to the following policies: dev-team
 
 Authentication / Login
 ----------------------
 
-:py:meth:`hvac.api.auth_methods.Github.login`
+.. automethod:: hvac.api.auth_methods.Github.login
+   :noindex:
+
+Examples
+````````
 
 Log in and automatically update the underlying "token" attribute on the :py:meth:`hvac.adapters.Adapter` instance:
 
-.. code:: python
+.. testcode:: github
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
     login_response = client.auth.github.login(token='some personal github token')
 
 

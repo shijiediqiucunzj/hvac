@@ -1,6 +1,10 @@
 Mount
 =====
 
+.. contents::
+   :local:
+   :depth: 1
+
 
 Manipulate secret backends
 --------------------------

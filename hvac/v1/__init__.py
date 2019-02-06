@@ -408,6 +408,7 @@ class Client(object):
             params = {'token': token}
             self._adapter.post('/v1/auth/token/revoke', json=params)
 
+    # TODO: does this method still work?
     def revoke_token_prefix(self, prefix):
         """POST /auth/token/revoke-prefix/<prefix>
 
@@ -900,15 +901,16 @@ class Client(object):
         return self._adapter.delete('/v1/auth/{0}/map/user-id/{1}'.format(mount_point, user_id))
 
     def create_vault_ec2_client_configuration(self, access_key, secret_key, endpoint=None, mount_point='aws-ec2'):
-        """POST /auth/<mount_point>/config/client
+        """Configure the credentials required to perform API calls to AWS as well as custom endpoints to talk to AWS APIs.
 
-        Configure the credentials required to perform API calls to AWS as well as custom endpoints to talk to AWS APIs.
         The instance identity document fetched from the PKCS#7 signature will provide the EC2 instance ID. The
         credentials configured using this endpoint will be used to query the status of the instances via
         DescribeInstances API. If static credentials are not provided using this endpoint, then the credentials will be
         retrieved from the environment variables AWS_ACCESS_KEY, AWS_SECRET_KEY and AWS_REGION respectively. If the
         credentials are still not found and if the method is configured on an EC2 instance with metadata querying
         capabilities, the credentials are fetched automatically
+
+        POST /auth/<mount_point>/config/client
 
         :param access_key: AWS Access key with permissions to query AWS APIs. The permissions required depend on the
             specific configurations. If using the iam auth method without inferencing, then no credentials are
@@ -1002,7 +1004,8 @@ class Client(object):
                         bound_iam_instance_profile_arn=None, bound_ec2_instance_id=None, bound_region=None,
                         bound_vpc_id=None, bound_subnet_id=None, role_tag=None,  ttl=None, max_ttl=None, period=None,
                         policies=None, allow_instance_migration=False, disallow_reauthentication=False,
-                        resolve_aws_unique_ids=None, mount_point='aws-ec2'):
+                        resolve_aws_unique_ids=None, mount_point='aws-ec2', auth_type='ec2',
+bound_iam_principal_arn=None):
         """POST /auth/<mount_point>/role/<role>
 
         :param role:
@@ -1046,10 +1049,15 @@ class Client(object):
         """
         params = {
             'role': role,
-            'auth_type': 'ec2',
-            'disallow_reauthentication': disallow_reauthentication,
-            'allow_instance_migration': allow_instance_migration
+            'auth_type': auth_type,
+            # 'disallow_reauthentication': disallow_reauthentication,
+            # 'allow_instance_migration': allow_instance_migration
         }
+
+        if auth_type == 'ec2':
+            params['disallow_reauthentication'] = disallow_reauthentication
+        if auth_type == 'ec2':
+            params['allow_instance_migration'] = allow_instance_migration
 
         if bound_ami_id is not None:
             params['bound_ami_id'] = bound_ami_id
@@ -1057,6 +1065,8 @@ class Client(object):
             params['bound_account_id'] = bound_account_id
         if bound_iam_role_arn is not None:
             params['bound_iam_role_arn'] = bound_iam_role_arn
+        if bound_iam_principal_arn is not None:
+            params['bound_iam_principal_arn'] = bound_iam_principal_arn
         if bound_ec2_instance_id is not None:
             params['bound_iam_instance_profile_arn'] = bound_ec2_instance_id
         if bound_iam_instance_profile_arn is not None:

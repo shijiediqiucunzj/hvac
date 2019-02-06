@@ -1,7 +1,13 @@
+azure-common
+boto3
 codecov
 coverage
+google-auth
+google-api-python-client
 ipaddress
 mock
+msrest
+msrestazure
 nose
 parameterized
 python-ldap-test

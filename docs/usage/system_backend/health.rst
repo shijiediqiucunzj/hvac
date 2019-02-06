@@ -1,6 +1,10 @@
 Health
 ======
 
+.. contents::
+   :local:
+   :depth: 1
+
 
 Read Status
 -----------

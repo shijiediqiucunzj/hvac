@@ -1,86 +1,116 @@
 Okta
 ====
 
-.. note::
-    Every method under the :py:attr:`Client class's okta attribute<hvac.v1.Client.okta>` includes a `mount_point` parameter that can be used to address the Okta auth method under a custom mount path. E.g., If enabling the Okta auth method using Vault's CLI commands via `vault secret enable -path=my-okta okta`", the `mount_point` parameter in Source reference: :py:meth:`hvac.api.auth_methods.Okta` methods would be set to "my-okta".
+.. contents::
+   :local:
+   :depth: 1
 
-Enabling the Auth Method
-------------------------
 
-Source reference: :py:meth:`hvac.v1.Client.enable_secret_backend`
+.. testsetup:: okta
 
-.. code:: python
+    test_okta_password = 'some password'
+
+    from mock import patch
+    getpass_patcher = patch('getpass.getpass')
+    mock_getpass = getpass_patcher.start()
+    mock_getpass.return_value = test_okta_password
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
-    okta_path = 'company-okta'
-    description = 'Auth method for use by team members in our company's Okta organization'
-
-    if '%s/' % okta_path not in vault_client.sys.list_auth_methods():
-        print('Enabling the okta secret backend at mount_point: {path}'.format(
-            path=okta_secret_path,
-        ))
-        client.enable_secret_backend(
-            backend_type='okta',
-            description=description,
-            mount_point=okta_secret_path,
-        )
+    # Reset state of our test okta auth method under path
+    client.sys.disable_auth_method(
+        path='okta',
+    )
+    client.sys.enable_auth_method(
+        method_type='okta',
+    )
 
 
 Configure
 ---------
 
-Source reference: :py:meth:`hvac.api.auth_methods.Okta.configure`
+.. automethod:: hvac.api.auth_methods.Okta.configure
+   :noindex:
 
-.. code:: python
+Examples
+````````
+.. testcode:: okta
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.auth.okta.configure(
         org_name='hvac-project'
     )
 
 Read Config
--------------------------------
+-----------
 
-Source reference: :py:meth:`hvac.api.auth_methods.Okta.read_config`
+.. automethod:: hvac.api.auth_methods.Okta.read_config
+   :noindex:
 
-.. code:: python
+Examples
+````````
+.. testcode:: okta
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     okta_config = client.auth.okta.read_config()
     print('The Okta auth method at path /okta has a configured organization name of: {name}'.format(
         name=okta_config['data']['org_name'],
     ))
 
+Example output:
+
+.. testoutput:: okta
+
+    The Okta auth method at path /okta has a configured organization name of: hvac-project
+
 List Users
 ----------
 
-Source reference: :py:meth:`hvac.api.auth_methods.Okta.list_users`
+.. automethod:: hvac.api.auth_methods.Okta.list_users
+   :noindex:
 
-.. code:: python
+Examples
+````````
+.. testsetup:: okta
+
+    client.auth.okta.register_user(
+        username='hvac-person',
+        policies=['hvac-admin'],
+    )
+
+.. testcode:: okta
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     users = client.auth.okta.list_users()
     print('The following Okta users are registered: {users}'.format(
         users=','.join(users['data']['keys']),
     ))
 
+Example output:
+
+.. testoutput:: okta
+
+    The following Okta users are registered: hvac-person
+
 Register User
 -------------
 
-Source reference: :py:meth:`hvac.api.auth_methods.Okta.register_user`
+.. automethod:: hvac.api.auth_methods.Okta.register_user
+   :noindex:
 
-.. code:: python
+Examples
+````````
+.. testcode:: okta
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.auth.okta.register_user(
         username='hvac-person',
@@ -90,30 +120,42 @@ Source reference: :py:meth:`hvac.api.auth_methods.Okta.register_user`
 Read User
 ---------
 
-Source reference: :py:meth:`hvac.api.auth_methods.Okta.read_user`
+.. automethod:: hvac.api.auth_methods.Okta.read_user
+   :noindex:
 
-.. code:: python
+Examples
+````````
+.. testcode:: okta
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     read_user = client.auth.okta.read_user(
         username='hvac-person',
     )
     print('Okta user "{name}" has the following attached policies: {policies}'.format(
         name='hvac-person',
-        policies=', '.join(read_user['data']['policies'],
+        policies=', '.join(read_user['data']['policies']),
     ))
+
+Example output:
+
+.. testoutput:: okta
+
+    Okta user "hvac-person" has the following attached policies: hvac-admin
 
 Delete User
 -----------
 
-Source reference: :py:meth:`hvac.api.auth_methods.Okta.delete_user`
+.. automethod:: hvac.api.auth_methods.Okta.delete_user
+   :noindex:
 
-.. code:: python
+Examples
+````````
+.. testcode:: okta
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.auth.okta.delete_user(
         username='hvac-person'
@@ -122,27 +164,46 @@ Source reference: :py:meth:`hvac.api.auth_methods.Okta.delete_user`
 List Groups
 -----------
 
-Source reference: :py:meth:`hvac.api.auth_methods.Okta.list_groups`
+.. automethod:: hvac.api.auth_methods.Okta.list_groups
+   :noindex:
 
-.. code:: python
+Examples
+````````
+.. testsetup:: okta
+
+    client.auth.okta.register_group(
+        name='hvac-group',
+        policies=['hvac-group-members'],
+    )
+
+.. testcode:: okta
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     groups = client.auth.okta.list_groups()
     print('The following Okta groups are registered: {groups}'.format(
         groups=','.join(groups['data']['keys']),
     ))
 
+Example output:
+
+.. testoutput:: okta
+
+    The following Okta groups are registered: hvac-group
+
 Register Group
 --------------
 
-Source reference: :py:meth:`hvac.api.auth_methods.Okta.register_group`
+.. automethod:: hvac.api.auth_methods.Okta.register_group
+   :noindex:
 
-.. code:: python
+Examples
+````````
+.. testcode:: okta
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.auth.okta.register_group(
         name='hvac-group',
@@ -152,30 +213,42 @@ Source reference: :py:meth:`hvac.api.auth_methods.Okta.register_group`
 Read Group
 ----------
 
-Source reference: :py:meth:`hvac.api.auth_methods.Okta.read_group`
+.. automethod:: hvac.api.auth_methods.Okta.read_group
+   :noindex:
 
-.. code:: python
+Examples
+````````
+.. testcode:: okta
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     read_group = client.auth.okta.read_group(
         name='hvac-group',
     )
     print('Okta group "{name}" has the following attached policies: {policies}'.format(
         name='hvac-group',
-        policies=', '.join(read_group['data']['policies'],
+        policies=', '.join(read_group['data']['policies']),
     ))
+
+Example output:
+
+.. testoutput:: okta
+
+    Okta group "hvac-group" has the following attached policies: hvac-group-members
 
 Delete Group
 ------------
 
-Source reference: :py:meth:`hvac.api.auth_methods.Okta.delete_group`
+.. automethod:: hvac.api.auth_methods.Okta.delete_group
+   :noindex:
 
-.. code:: python
+Examples
+````````
+.. testcode:: okta
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.auth.okta.delete_group(
         name='hvac-group',
@@ -184,14 +257,17 @@ Source reference: :py:meth:`hvac.api.auth_methods.Okta.delete_group`
 Login
 -----
 
-Source reference: :py:meth:`hvac.api.auth_methods.Okta.login`
+.. automethod:: hvac.api.auth_methods.Okta.login
+   :noindex:
 
-.. code:: python
+Examples
+````````
+.. testcode:: okta
 
     from getpass import getpass
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
 
     password_prompt = 'Please enter your password for the Okta authentication backend: '
@@ -201,3 +277,15 @@ Source reference: :py:meth:`hvac.api.auth_methods.Okta.login`
         username='hvac-person',
         password=okta_password,
     )
+
+.. testcleanup:: okta
+
+    import hvac
+    client = hvac.Client(url='https://127.0.0.1:8200')
+
+    # Reset state of our test okta auth method under path
+    client.sys.disable_auth_method(
+        path='okta',
+    )
+
+    getpass_patcher.stop()

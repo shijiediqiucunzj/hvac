@@ -42,7 +42,7 @@ def raise_for_error(status_code, message=None, errors=None):
     elif status_code == 503:
         raise exceptions.VaultDown(message, errors=errors)
     else:
-        raise exceptions.UnexpectedError(message)
+        raise exceptions.UnexpectedError('%s, reponse status code: %s' % (message, status_code))
 
 
 def generate_method_deprecation_message(to_be_removed_in_version, old_method_name, method_name=None, module_name=None):

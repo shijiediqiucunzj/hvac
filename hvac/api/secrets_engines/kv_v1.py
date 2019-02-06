@@ -33,7 +33,7 @@ class KvV1(VaultApiBase):
         )
         return response.json()
 
-    def list_secrets(self, path, mount_point=DEFAULT_MOUNT_POINT):
+    def list_secrets(self, path=None, mount_point=DEFAULT_MOUNT_POINT):
         """Return a list of key names at the specified location.
 
         Folders are suffixed with /. The input must be a folder; list on a file will not return a value. Note that no
@@ -51,6 +51,8 @@ class KvV1(VaultApiBase):
         :return: The JSON response of the list_secrets request.
         :rtype: dict
         """
+        if path is None:
+            path = ''
         api_path = '/v1/{mount_point}/{path}'.format(mount_point=mount_point, path=path)
         response = self._adapter.list(
             url=api_path,

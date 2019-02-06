@@ -1,6 +1,10 @@
 Leader
 ======
 
+.. contents::
+   :local:
+   :depth: 1
+
 
 Read Leader Status
 ------------------

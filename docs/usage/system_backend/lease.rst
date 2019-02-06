@@ -1,6 +1,10 @@
 Lease
 =====
 
+.. contents::
+   :local:
+   :depth: 1
+
 
 
 View and Manage Leases

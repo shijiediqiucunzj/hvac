@@ -105,8 +105,9 @@ class TestGcp(HvacIntegrationTestCase, TestCase):
                 )
 
     @parameterized.expand([
+        # TODO: figure out why this is returning a 405, see https://github.com/hashicorp/vault-plugin-auth-gcp/issues/62
         # param(
-        #     'success',  # TODO: figure out why this is returning a 405
+        #     'success',
         # ),
         param(
             'no existing config',

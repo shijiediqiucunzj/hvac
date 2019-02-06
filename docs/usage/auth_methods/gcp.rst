@@ -3,206 +3,255 @@
 GCP
 ===
 
-.. note::
-    Every method under the :py:attr:`Client class's gcp.auth attribute<hvac.api.Gcp.auth>` includes a `mount_point` parameter that can be used to address the GCP auth method under a custom mount path. E.g., If enabling the GCP auth method using Vault's CLI commands via `vault auth enable -path=my-gcp gcp`", the `mount_point` parameter in :py:meth:`hvac.api.auth.Gcp` methods would be set to "my-gcp".
-
-Enabling the Auth Method
-------------------------
-
-Source reference: :py:meth:`hvac.v1.Client.enable_auth_backend`
-
-.. code:: python
-
-    import hvac
-    client = hvac.Client()
-
-    gcp_auth_path = 'company-gcp'
-    description = 'Auth method for use by team members in our company's Gcp organization'
-
-    if '%s/' % gcp_auth_path not in vault_client.list_auth_backends():
-        print('Enabling the gcp auth backend at mount_point: {path}'.format(
-            path=gcp_auth_path,
-        ))
-        client.enable_auth_backend(
-            backend_type='gcp',
-            description=description,
-            mount_point=gcp_auth_path,
-        )
+.. contents::
+   :local:
+   :depth: 1
 
 
 Configure
 ---------
 
-Source reference: :py:meth:`hvac.api.auth.Gcp.configure`
+.. automethod:: hvac.api.auth_methods.Gcp.configure
+   :noindex:
 
-.. code:: python
+Examples
+````````
+.. testsetup:: gcp-auth
+
+    client = hvac.Client(url='https://127.0.0.1:8200')
+    client.sys.enable_auth_method(
+        method_type='gcp'
+    )
+
+.. testcode:: gcp-auth
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.auth.gcp.configure(
-        credentials='some signed JSON web token for the Vault server...'
+        credentials=os.environ['GCP_JWT_CREDENTIALS'],
     )
 
 Read Config
 -----------
 
-Source reference: :py:meth:`hvac.api.auth.Gcp.read_config`
+.. automethod:: hvac.api.auth_methods.Gcp.read_config
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: gcp-auth
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     read_config = client.auth.gcp.read_config()
-    print('The configured project_id is: {id}'.format(id=read_config['project_id'))
+    print('The configured project_id is: {id}'.format(id=read_config['project_id']))
+
+Example output:
+
+.. testoutput:: gcp-auth
+
+    The configured project_id is: test-hvac-project-not-a-real-project
 
 Delete Config
 -------------
 
-Source reference: :py:meth:`hvac.api.auth.Gcp.delete_config`
+.. automethod:: hvac.api.auth_methods.Gcp.delete_config
+   :noindex:
+
+Examples
+````````
+
+.. TODO: convert this to a test code block pending the outcome of https://github.com/hashicorp/vault-plugin-auth-gcp/issues/62
 
 .. code:: python
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     client.auth.gcp.delete_config()
 
 Create Role
 -----------
 
-Source reference: :py:meth:`hvac.api.auth.Gcp.create_role`
+.. automethod:: hvac.api.auth_methods.Gcp.create_role
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: gcp-auth
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
-	client.auth.gcp.create_role(
-		name='some-gcp-role-name',
-		role_type='iam',
-		project_id='some-gcp-project-id',
-		bound_service_accounts=['*'],
-	)
+    client.auth.gcp.create_role(
+        name='some-iam-role-name',
+        role_type='iam',
+        project_id='some-gcp-project-id',
+        bound_service_accounts=['hvac@appspot.gserviceaccount.com'],
+    )
+
+    client.auth.gcp.create_role(
+        name='some-gce-role-name',
+        role_type='gce',
+        project_id='some-gcp-project-id',
+        bound_service_accounts=['hvac@appspot.gserviceaccount.com'],
+    )
 
 Edit Service Accounts On IAM Role
 ---------------------------------
 
-Source reference: :py:meth:`hvac.api.auth.Gcp.edit_service_accounts_on_iam_role`
+.. automethod:: hvac.api.auth_methods.Gcp.edit_service_accounts_on_iam_role
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: gcp-auth
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
-    client.gcp.edit_service_accounts_on_iam_role(
-		name='some-gcp-role-name',
+    client.auth.gcp.edit_service_accounts_on_iam_role(
+        name='some-iam-role-name',
         add=['hvac@appspot.gserviceaccount.com'],
     )
 
-    client.gcp.edit_service_accounts_on_iam_role(
-		name='some-gcp-role-name',
+    client.auth.gcp.edit_service_accounts_on_iam_role(
+        name='some-iam-role-name',
         remove=['disallowed-service-account@appspot.gserviceaccount.com'],
     )
 
 Edit Labels On GCE Role
 -----------------------
 
-Source reference: :py:meth:`hvac.api.auth.Gcp.edit_labels_on_gce_role`
+.. automethod:: hvac.api.auth_methods.Gcp.edit_labels_on_gce_role
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: gcp-auth
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
-    client.gcp.edit_labels_on_gce_role(
-		name='some-gcp-role-name',
+    client.auth.gcp.edit_labels_on_gce_role(
+        name='some-gce-role-name',
         add=['some-key:some-value'],
     )
 
-    client.gcp.edit_labels_on_gce_role(
-		name='some-gcp-role-name',
+    client.auth.gcp.edit_labels_on_gce_role(
+        name='some-gce-role-name',
         remove=['some-bad-key:some-bad-value'],
     )
 
 Read A Role
 -----------
 
-Source reference: :py:meth:`hvac.api.auth.Gcp.read_role`
+.. automethod:: hvac.api.auth_methods.Gcp.read_role
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: gcp-auth
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
-    read_role_response = client.gcp.read_role(
-        name=role_name,
+    read_role_response = client.auth.gcp.read_role(
+        name='some-iam-role-name',
     )
 
-    print('Policies for role "{name}": {policies}'.format(
-        name='my-role',
-        policies=','.join(read_role_response['policies']),
+    print('Bound service accounts for role "{name}": {bound_service_accounts}'.format(
+        name='some-iam-role-name',
+        bound_service_accounts=', '.join(read_role_response['bound_service_accounts']),
     ))
+
+.. testoutput:: gcp-auth
+
+    Bound service accounts for role "some-iam-role-name": hvac@appspot.gserviceaccount.com
 
 List Roles
 ----------
 
-Source reference: :py:meth:`hvac.api.auth.Gcp.list_roles`
+.. automethod:: hvac.api.auth_methods.Gcp.list_roles
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: gcp-auth
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
     roles = client.auth.gcp.list_roles()
     print('The following GCP auth roles are configured: {roles}'.format(
-        roles=','.join(roles['keys']),
+        roles=', '.join(roles['keys']),
     ))
+
+.. testoutput:: gcp-auth
+
+    The following GCP auth roles are configured: some-gce-role-name, some-iam-role-name
 
 Delete A Role
 -------------
 
-Source reference: :py:meth:`hvac.api.auth.Gcp.delete_role`
+.. automethod:: hvac.api.auth_methods.Gcp.delete_role
+   :noindex:
 
-.. code:: python
+Examples
+````````
+
+.. testcode:: gcp-auth
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
-    client.gcp.delete_role(
+    client.auth.gcp.delete_role(
+        role='some-iam-role-name',
     )
 
 Login
 -----
 
-Source reference: :py:meth:`hvac.api.auth.Gcp.login`
+.. automethod:: hvac.api.auth_methods.Gcp.login
+   :noindex:
 
-.. code:: python
+Basic Example
+`````````````
+
+.. testcode:: gcp-auth
 
     import hvac
-    client = hvac.Client()
+    client = hvac.Client(url='https://127.0.0.1:8200')
 
-    client.gcp.login(
-        role=role_name,
+    client.auth.gcp.login(
+        role='some-iam-role-name',
         jwt='some signed JSON web token...',
     )
     client.is_authenticated  # ==> returns True
 
 
-Example with google-api-python-client Usage
-```````````````````````````````````````````
+google-api-python-client Example
+````````````````````````````````
 
 .. code:: python
 
+    import json
     import time
 
-    import googleapiclient.discovery # pip install google-api-python-client
+    from googleapiclient import discovery # pip install google-api-python-client
     from google.oauth2 import service_account # pip install google-auth
     import hvac # pip install hvac
 
     # First load some previously generated GCP service account key
-    path_to_sa_json = 'some-service-account-path.json'
+    path_to_sa_json = os.environ['GCP_SERVICE_ACCOUNT_JSON_PATH']
     credentials = service_account.Credentials.from_service_account_file(path_to_sa_json)
     with open(path_to_sa_json, 'r') as f:
         creds = json.load(f)
@@ -223,7 +272,7 @@ Example with google-api-python-client Usage
     name = f'projects/{project}/serviceAccounts/{service_account}'
 
     # Perform the GCP API call
-    iam = googleapiclient.discovery.build('iam', 'v1', credentials=credentials)
+    iam = discovery.build('iam', 'v1', credentials=credentials)
     request = iam.projects().serviceAccounts().signJwt(name=name, body=body)
     resp = request.execute()
     jwt = resp['signedJwt']
