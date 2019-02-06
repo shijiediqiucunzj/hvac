@@ -3,7 +3,7 @@ from time import sleep
 from unittest import TestCase, skipIf
 
 from parameterized import parameterized, param
-
+from tests.utils import create_client
 from hvac import exceptions
 from tests import utils
 from tests.utils.hvac_integration_test_case import HvacIntegrationTestCase
@@ -588,3 +588,20 @@ class TestKvV2(HvacIntegrationTestCase, TestCase):
                 mount_point=self.DEFAULT_MOUNT_POINT,
             )
             logging.debug('read_secret_metadata_result: %s' % read_secret_metadata_result)
+
+    def test_allowed_parameters_policy_support(self):
+        allowed_parameters_policy = """
+        path "secret/data/foo/bar/*" {
+            allowed_parameters = {
+                x = []
+                y = []
+                z = []
+            }
+            capabilities = ["create", "read", "update", "delete", "list"]
+        }
+        """
+        self.client.sys.create_or_update_policy(name='allowed_parameters', policy=allowed_parameters_policy)
+        create_token_response = self.client.create_token(policies=['allowed_parameters'])
+        client_with_policy = create_client(token=create_token_response['auth']['client_token'])
+        client_with_policy.secrets.kv.v2.create_or_update_secret('foo/bar/baz', secret={'x': '1', 'y': '2', 'z': '3'})
+        self.client.sys.delete_policy(name='allowed_parameters')
