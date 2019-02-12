@@ -603,5 +603,9 @@ class TestKvV2(HvacIntegrationTestCase, TestCase):
         self.client.sys.create_or_update_policy(name='allowed_parameters', policy=allowed_parameters_policy)
         create_token_response = self.client.create_token(policies=['allowed_parameters'])
         client_with_policy = create_client(token=create_token_response['auth']['client_token'])
-        client_with_policy.secrets.kv.v2.create_or_update_secret('foo/bar/baz', secret={'x': '1', 'y': '2', 'z': '3'})
+        client_with_policy.secrets.kv.v2.create_or_update_secret(
+            'foo/bar/baz',
+            secret={'x': '1', 'y': '2', 'z': '3'},
+            mount_point=self.DEFAULT_MOUNT_POINT,
+        )
         self.client.sys.delete_policy(name='allowed_parameters')
